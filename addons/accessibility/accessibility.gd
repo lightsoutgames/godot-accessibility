@@ -1,7 +1,7 @@
 tool
 extends EditorPlugin
 
-func _focus_entered():
+func _focused():
     print("Focus entered.")
 
 func _gui_input():
