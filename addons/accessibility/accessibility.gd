@@ -1,17 +1,11 @@
 tool
 extends EditorPlugin
 
-func _focused():
-    print("Focus entered.")
-
-func _gui_input():
-    print("GUI input.")
+var Accessible = preload("accessible.gd")
 
 func _augment_node(node):
     if node is Control:
-        node.connect("focus_entered", self, "_focused")
-        node.connect("mouse_entered", self, "_focused")
-        node.connect("gui_input", self, "_gui_input")
+        Accessible.new(node)
 
 func _enter_tree():
     get_tree().connect("node_added", self, "_augment_node")
