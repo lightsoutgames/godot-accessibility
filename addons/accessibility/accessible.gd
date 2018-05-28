@@ -9,6 +9,7 @@ func _gui_input():
     print("GUI input.")
 
 func _init(node):
+    print(node.get_path())
     self.node = node
     self.node.connect("focus_entered", self, "_focused")
     self.node.connect("mouse_entered", self, "_focused")
