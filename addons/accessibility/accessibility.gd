@@ -5,16 +5,19 @@ var Accessible = preload("accessible.gd")
 
 func _augment_node(node):
     if node is Control:
+        node.set_focus_mode(Control.FOCUS_ALL)
         Accessible.new(node)
 
 func _set_initial_screen_focus(screen):
+    print("Screen ",screen)
     var focus
     var root = self
     while root.get_parent() != null:
         root = root.get_parent()
     if screen == "3D":
-        focus = root.find_node("LineEdit", true, false)
+        focus = root.find_node("ToolButton", true, false)
     print("Focus ",focus)
+    focus.grab_click_focus()
     focus.grab_focus()
 
 func _set_initial_scene_focus(scene):
