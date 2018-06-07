@@ -19,9 +19,10 @@ func set_initial_screen_focus(screen):
     augment_tree(root)
     if screen == "3D":
         focus = root.find_node("ToolButton", true, false)
-    print("Focus ",focus)
-    focus.grab_click_focus()
-    focus.grab_focus()
+    if focus is Control:
+        print("Focus ",focus)
+        focus.grab_click_focus()
+        focus.grab_focus()
 
 func set_initial_scene_focus(scene):
     print("Set focus in scene")
