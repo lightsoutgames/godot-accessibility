@@ -11,9 +11,7 @@ func augment_node(node):
 func set_initial_screen_focus(screen):
     print("Screen ",screen)
     var focus
-    var root = self
-    while root.get_parent() != null:
-        root = root.get_parent()
+    var root = get_tree().root
     if screen == "3D":
         focus = root.find_node("ToolButton", true, false)
     print("Focus ",focus)
