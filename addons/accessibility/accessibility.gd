@@ -34,7 +34,7 @@ func set_initial_scene_focus(scene):
     print("Set focus in scene")
 
 func _enter_tree():
-    get_tree().connect("node_added", self, "augment_node")
+    get_tree().connect("node_added", self, "augment_tree")
     connect("scene_changed", self, "set_initial_scene_focus")
     connect("main_screen_changed", self, "set_initial_screen_focus")
 
