@@ -21,11 +21,24 @@ func present_line_edit():
         type = "text"
     print("%s: %s" % [text, type])
 
+func item_or_items(count):
+    if count == 1:
+        return "item"
+    else:
+        return "items"
+
+func present_tree():
+    var root = node.get_root()
+    var count = 0
+    print("tree: %s %s" % [count, item_or_items(count)])
+
 func focused():
     if node is Button:
         present_button()
     elif node is LineEdit:
         present_line_edit()
+    elif node is Tree:
+        present_tree()
     else:
         print("Focus entered.", self.node)
 
