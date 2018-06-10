@@ -2,11 +2,23 @@ extends Object
 
 var node
 
+func item_or_items(count):
+    if count == 1:
+        return "item"
+    else:
+        return "items"
+
 func present_button():
     var text = "Unlabelled"
     if node.text:
         text = node.text
     print("%s: button" % text)
+
+func present_item_list():
+    var count = node.get_item_count()
+    var selected = node.get_selected_items()
+    print("list, %s %s" % [count, item_or_items(count)])
+    print(selected)
 
 func present_line_edit():
     var text = "blank"
@@ -21,12 +33,6 @@ func present_line_edit():
         type = "text"
     print("%s: %s" % [text, type])
 
-func item_or_items(count):
-    if count == 1:
-        return "item"
-    else:
-        return "items"
-
 func present_tree():
     var root = node.get_root()
     var count = 0
@@ -35,6 +41,8 @@ func present_tree():
 func focused():
     if node is Button:
         present_button()
+    elif node is ItemList:
+        present_item_list()
     elif node is LineEdit:
         present_line_edit()
     elif node is Tree:
