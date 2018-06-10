@@ -2,12 +2,30 @@ extends Object
 
 var node
 
+func present_button():
+    var text = "Unlabelled"
+    if node.text:
+        text = node.text
+    print("%s: button" % text)
+
+func present_line_edit():
+    var text = "blank"
+    if node.secret:
+        text = "password"
+    elif node.text != "":
+        text = node.text
+    elif node.placeholder_text != "":
+        text = node.placeholder_text
+    var type = "editable text"
+    if not node.editable:
+        type = "text"
+    print("%s: %s" % [text, type])
+
 func focused():
     if node is Button:
-        var text = "Unlabelled"
-        if node.text:
-            text = node.text
-        print("%s: button" % text)
+        present_button()
+    elif node is LineEdit:
+        present_line_edit()
     else:
         print("Focus entered.", self.node)
 
