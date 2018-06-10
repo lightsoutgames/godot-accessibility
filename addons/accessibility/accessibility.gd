@@ -10,19 +10,25 @@ func augment_node(node):
 func augment_tree(node):
     augment_node(node)
     for child in node.get_children():
-        augment_node(child)
+        augment_tree(child)
 
 func set_initial_screen_focus(screen):
-    print("Screen ",screen)
-    var focus
-    var root = get_tree().root
-    augment_tree(root)
-    if screen == "3D":
-        focus = root.find_node("ToolButton", true, false)
-    if focus is Control:
-        print("Focus ",focus)
-        focus.grab_click_focus()
-        focus.grab_focus()
+    self.augment_tree(get_tree().root)
+    var focus = find_focusable_control(get_tree().root)
+    print("Focus ",focus, focus.is_in_group("accessible"))
+    if not focus:
+        return
+    focus.grab_click_focus()
+    focus.grab_focus()
+
+func find_focusable_control(node):
+    if node is Control and node.is_visible_in_tree() and (node.focus_mode == Control.FOCUS_CLICK or node.focus_mode == Control.FOCUS_ALL):
+        return node
+    for child in node.get_children():
+        var result = find_focusable_control(child)
+        if result:
+            return result
+    return null
 
 func set_initial_scene_focus(scene):
     print("Set focus in scene")
