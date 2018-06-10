@@ -3,7 +3,13 @@ extends Object
 var node
 
 func focused():
-    print("Focus entered.", self.node)
+    if node is Button:
+        var text = "Unlabelled"
+        if node.text:
+            text = node.text
+        print("%s: button" % text)
+    else:
+        print("Focus entered.", self.node)
 
 func unfocused():
     pass

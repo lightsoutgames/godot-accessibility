@@ -15,7 +15,6 @@ func augment_tree(node):
 func set_initial_screen_focus(screen):
     self.augment_tree(get_tree().root)
     var focus = find_focusable_control(get_tree().root)
-    print("Focus ",focus, focus.is_in_group("accessible"))
     if not focus:
         return
     focus.grab_click_focus()
