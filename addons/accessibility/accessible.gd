@@ -33,6 +33,13 @@ func present_line_edit():
         type = "text"
     print("%s: %s" % [text, type])
 
+func caret_moved():
+    var pos = node.caret_position
+    var text = node.text
+    if pos > len(text)-1:
+        return
+    print(text[pos])
+
 func present_tree():
     var root = node.get_root()
     var count = 0
@@ -67,4 +74,6 @@ func _init(node):
     self.node.connect("focus_exited", self, "unfocused")
     self.node.connect("mouse_exited", self, "unfocused")
     self.node.connect("gui_input", self, "gui_input")
+    if self.node is LineEdit:
+        self.node.connect("caret_moved", self, "caret_moved")
     self.node.connect("tree_exiting", self, "free")
