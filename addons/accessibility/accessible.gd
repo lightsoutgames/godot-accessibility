@@ -33,12 +33,17 @@ func present_line_edit():
         type = "text"
     print("%s: %s" % [text, type])
 
-func caret_moved():
+var old_pos
+
+func check_caret_moved():
     var pos = node.caret_position
-    var text = node.text
-    if pos > len(text)-1:
-        return
-    print(text[pos])
+    if old_pos != pos:
+        var text = node.text
+        if pos > len(text)-1:
+            print("blank")
+        else:
+            print(text[pos])
+        old_pos = pos
 
 func present_tree():
     var root = node.get_root()
@@ -61,7 +66,8 @@ func unfocused():
     pass
 
 func gui_input(event):
-    pass
+    if self.node is LineEdit:
+        check_caret_moved()
 
 func _init(node):
     if node.is_in_group("accessible"):
@@ -74,6 +80,4 @@ func _init(node):
     self.node.connect("focus_exited", self, "unfocused")
     self.node.connect("mouse_exited", self, "unfocused")
     self.node.connect("gui_input", self, "gui_input")
-    if self.node is LineEdit:
-        self.node.connect("caret_moved", self, "caret_moved")
     self.node.connect("tree_exiting", self, "free")
