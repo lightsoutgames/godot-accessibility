@@ -101,7 +101,7 @@ func focused():
     elif node is Tree:
         present_tree()
     else:
-        print("Focus entered.", self.node)
+        print("Focus entered.", node)
 
 func unfocused():
     if node is ItemList:
@@ -110,7 +110,7 @@ func unfocused():
 func gui_input(event):
     if node is ItemList:
         return input_item_list(event)
-    if self.node is LineEdit:
+    if node is LineEdit:
         return check_caret_moved()
 
 func _init(node):
@@ -118,18 +118,18 @@ func _init(node):
         return
     node.add_to_group("accessible")
     self.node = node
-    # self.node.set_focus_mode(Control.FOCUS_ALL)
-    self.node.connect("focus_entered", self, "focused")
-    self.node.connect("mouse_entered", self, "focused")
-    self.node.connect("focus_exited", self, "unfocused")
-    self.node.connect("mouse_exited", self, "unfocused")
-    self.node.connect("gui_input", self, "gui_input")
+    # node.set_focus_mode(Control.FOCUS_ALL)
+    node.connect("focus_entered", self, "focused")
+    node.connect("mouse_entered", self, "focused")
+    node.connect("focus_exited", self, "unfocused")
+    node.connect("mouse_exited", self, "unfocused")
+    node.connect("gui_input", self, "gui_input")
     if node is ItemList:
         node.connect("item_selected", self, "handle_item_list_item_selected")
         node.connect("multi_selected", self, "handle_item_list_multi_selected")
         node.connect("nothing_selected", self, "handle_item_list_nothing_selected")
         
-    elif self.node is LineEdit:
-        self.node.connect("text_deleted", self, "text_deleted")
-        self.node.connect("text_inserted", self, "text_inserted")
-    self.node.connect("tree_exiting", self, "free")
+    elif node is LineEdit:
+        node.connect("text_deleted", self, "text_deleted")
+        node.connect("text_inserted", self, "text_inserted")
+    node.connect("tree_exiting", self, "free")
