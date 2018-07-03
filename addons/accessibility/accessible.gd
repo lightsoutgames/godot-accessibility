@@ -33,6 +33,12 @@ func present_line_edit():
         type = "text"
     print("%s: %s" % [text, type])
 
+func text_deleted(text):
+    print("%s deleted" % text)
+
+func text_inserted(text):
+    print(text)
+
 var old_pos
 
 func check_caret_moved():
@@ -80,4 +86,7 @@ func _init(node):
     self.node.connect("focus_exited", self, "unfocused")
     self.node.connect("mouse_exited", self, "unfocused")
     self.node.connect("gui_input", self, "gui_input")
+    if self.node is LineEdit:
+        self.node.connect("text_deleted", self, "text_deleted")
+        self.node.connect("text_inserted", self, "text_inserted")
     self.node.connect("tree_exiting", self, "free")
