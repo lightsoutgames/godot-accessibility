@@ -14,11 +14,46 @@ func present_button():
         text = node.text
     print("%s: button" % text)
 
+var list_pos = 0
+
+func input_item_list(event):
+    var old_list_pos = list_pos
+    if event.echo or not event.pressed:
+        return
+    if event.scancode == KEY_UP:
+        if list_pos == 0:
+            return
+        list_pos -= 1
+    elif event.scancode == KEY_DOWN:
+        if list_pos >= node.get_item_count()-1:
+            return
+        list_pos += 1
+    elif event.scancode == KEY_HOME:
+        list_pos = 0
+    elif event.scancode == KEY_END:
+        list_pos = node.get_item_count()-1
+    if old_list_pos != list_pos:
+        var text = node.get_item_text(list_pos)
+        print("%s: %s of %s" % [text, list_pos+1, node.get_item_count()])
+
+func handle_item_list_item_selected(index):
+    print("Selected")
+
+func handle_item_list_multi_selected(index, selected):
+    print("Multiselect")
+
+func handle_item_list_nothing_selected():
+    print("Nothing selected")
+
 func present_item_list():
     var count = node.get_item_count()
     var selected = node.get_selected_items()
     print("list, %s %s" % [count, item_or_items(count)])
     print(selected)
+    
+
+func unfocus_item_list():
+    list_pos = 0
 
 func present_line_edit():
     var text = "blank"
@@ -69,11 +104,14 @@ func focused():
         print("Focus entered.", self.node)
 
 func unfocused():
-    pass
+    if node is ItemList:
+        unfocus_item_list()
 
 func gui_input(event):
+    if node is ItemList:
+        return input_item_list(event)
     if self.node is LineEdit:
-        check_caret_moved()
+        return check_caret_moved()
 
 func _init(node):
     if node.is_in_group("accessible"):
@@ -86,7 +124,12 @@ func _init(node):
     self.node.connect("focus_exited", self, "unfocused")
     self.node.connect("mouse_exited", self, "unfocused")
     self.node.connect("gui_input", self, "gui_input")
-    if self.node is LineEdit:
+    if node is ItemList:
+        node.connect("item_selected", self, "handle_item_list_item_selected")
+        node.connect("multi_selected", self, "handle_item_list_multi_selected")
+        node.connect("nothing_selected", self, "handle_item_list_nothing_selected")
+        
+    elif self.node is LineEdit:
         self.node.connect("text_deleted", self, "text_deleted")
         self.node.connect("text_inserted", self, "text_inserted")
     self.node.connect("tree_exiting", self, "free")
