@@ -57,6 +57,9 @@ func input_item_list(event):
         var text = node.get_item_text(position_in_children)
         print("%s: %s of %s" % [text, position_in_children+1, node.get_item_count()])
 
+func focus_label():
+    print(node.text)
+
 func focus_line_edit():
     var text = "blank"
     if node.secret:
@@ -119,7 +122,10 @@ func render_tree_item():
     return result
 
 func focus_tree():
-    print(render_tree_item(), ": tree item")
+    if node.get_selected():
+        print(render_tree_item(), ": tree item")
+    else:
+        print("tree")
 
 func select_tree():
     if node.has_focus():
@@ -133,6 +139,8 @@ func focused():
         focus_button()
     elif node is ItemList:
         focus_item_list()
+    elif node is Label:
+        focus_label()
     elif node is LineEdit:
         focus_line_edit()
     elif node is PopupMenu:
