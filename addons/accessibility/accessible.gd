@@ -166,7 +166,7 @@ func _init(node):
         return
     node.add_to_group("accessible")
     self.node = node
-    if not node is Container and not node is Panel and not node is Separator:
+    if not node is Container and not node is Panel and not node is Separator and not node is ScrollBar and not node is Popup:
         node.set_focus_mode(Control.FOCUS_ALL)
     node.connect("focus_entered", self, "focused")
     node.connect("mouse_entered", self, "focused")
