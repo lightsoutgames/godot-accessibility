@@ -91,10 +91,17 @@ func check_caret_moved():
             print(text[pos])
         old_pos = pos
 
+func render_selected_tree_item():
+    var item = node.get_selected()
+    var result = item.get_text(0)
+    return result
+
 func focus_tree():
-    var root = node.get_root()
-    var count = 0
-    print("tree: %s %s" % [count, item_or_items(count)])
+    print(render_selected_tree_item(), ": tree item")
+
+func select_tree():
+    if node.has_focus():
+        print(render_selected_tree_item())
 
 func focused():
     if node is Button:
@@ -139,4 +146,6 @@ func _init(node):
     elif node is LineEdit:
         node.connect("text_deleted", self, "text_deleted")
         node.connect("text_inserted", self, "text_inserted")
+    elif node is Tree:
+        node.connect("item_selected", self, "select_tree")
     node.connect("tree_exiting", self, "free")
