@@ -40,10 +40,12 @@ func input_item_list(event):
     if event.echo or not event.pressed:
         return
     if event.scancode == KEY_UP:
+        node.get_tree().set_input_as_handled()
         if list_pos == 0:
             return
         list_pos -= 1
     elif event.scancode == KEY_DOWN:
+        node.get_tree().set_input_as_handled()
         if list_pos >= node.get_item_count()-1:
             return
         list_pos += 1
