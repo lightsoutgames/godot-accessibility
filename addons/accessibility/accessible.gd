@@ -12,7 +12,10 @@ func focus_button():
     var text = "Unlabelled"
     if node.text:
         text = node.text
-    print("%s: button" % text)
+    if text:
+        print("%s: button" % text)
+    else:
+        print("button")
 
 var list_pos = 0
 
@@ -102,6 +105,8 @@ func focused():
         focus_tree()
     else:
         print("Focus entered.", node)
+    if node.hint_tooltip:
+        print(node.hint_tooltip)
 
 func unfocused():
     if node is ItemList:
