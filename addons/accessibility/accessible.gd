@@ -136,6 +136,27 @@ func render_tree_item():
     var result = item.get_text(0)
     return result
 
+func focus_tab_container():
+    var text = node.get_tab_title(node.current_tab)
+    text += ": tab: " + str(node.current_tab + 1) + " of " + str(node.get_tab_count())
+    tts.speak(text, false)
+
+func input_tab_container(event):
+    tts.stop()
+    var new_tab = node.current_tab
+    if event.echo or not event.pressed:
+        return
+    if event.scancode == KEY_RIGHT:
+        new_tab += 1
+    elif event.scancode == KEY_LEFT:
+        new_tab -= 1
+    if new_tab < 0:
+        new_tab = node.get_tab_count() - 1
+    elif new_tab >= node.get_tab_count():
+        new_tab = 0
+    node.current_tab = new_tab
+    focus_tab_container()
+
 func focus_tree():
     if node.get_selected():
         tts.speak(render_tree_item(), true)
@@ -164,6 +185,8 @@ func focused():
         focus_line_edit()
     elif node is PopupMenu:
         focus_popup_menu()
+    elif node is TabContainer:
+        focus_tab_container()
     elif node is Tree:
         focus_tree()
     else:
@@ -175,6 +198,8 @@ func unfocused():
     position_in_children = 0
 
 func gui_input(event):
+    if node is TabContainer:
+        return input_tab_container(event)
     if node is ItemList:
         return input_item_list(event)
     elif node is LineEdit:
@@ -187,6 +212,8 @@ func _init(tts, node):
     self.tts = tts
     self.node = node
     if not node is Container and not node is Panel and not node is Separator and not node is ScrollBar and not node is Popup and node.get_class() != "Control":
+        node.set_focus_mode(Control.FOCUS_ALL)
+    elif node is TabContainer:
         node.set_focus_mode(Control.FOCUS_ALL)
     node.connect("focus_entered", self, "focused")
     node.connect("mouse_entered", self, "focused")
