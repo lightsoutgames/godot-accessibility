@@ -87,12 +87,14 @@ var old_pos
 
 func check_caret_moved():
     var pos = node.caret_position
-    if old_pos != pos:
+    if old_pos != null and old_pos != pos:
         var text = node.text
         if pos > len(text)-1:
             tts.speak("blank", true)
         else:
             tts.speak(text[pos], true)
+        old_pos = pos
+    elif old_pos == null:
         old_pos = pos
 
 func focus_menu_button():
