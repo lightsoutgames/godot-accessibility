@@ -19,7 +19,7 @@ run/main_scene="res://player.tscn"
 
 [autoload]
 
-Globals="*res://globals.gd"
+Globals="*res://Globals.gd"
 
 [editor_plugins]
 
