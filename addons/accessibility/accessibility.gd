@@ -3,9 +3,12 @@ extends EditorPlugin
 
 var Accessible = preload("accessible.gd")
 
+const TTS = preload("res://godot_tts.gdns")
+var tts
+
 func augment_node(node):
     if node is Control:
-        Accessible.new(node)
+        Accessible.new(tts, node)
 
 func augment_tree(node):
     augment_node(node)
@@ -33,6 +36,7 @@ func set_initial_scene_focus(scene):
     print("Set focus in scene")
 
 func _enter_tree():
+    tts = TTS.new()
     get_tree().connect("node_added", self, "augment_tree")
     connect("scene_changed", self, "set_initial_scene_focus")
     connect("main_screen_changed", self, "set_initial_screen_focus")

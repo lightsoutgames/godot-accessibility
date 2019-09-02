@@ -1,5 +1,7 @@
 extends Object
 
+var tts
+
 var node
 
 var position_in_children = 0
@@ -11,29 +13,28 @@ func item_or_items(count):
         return "items"
 
 func focus_button():
-    var text = "Unlabelled"
+    var text
     if node.text:
         text = node.text
     if text:
-        print("%s: button" % text)
+        tts.speak("%s: button" % text, true)
     else:
-        print("button")
+        tts.speak("button", true)
 
 func focus_item_list():
     var count = node.get_item_count()
     var selected = node.get_selected_items()
-    print("list, %s %s" % [count, item_or_items(count)])
-    print(selected)
-    
+    tts.speak("list, %s %s" % [count, item_or_items(count)], true)
+    tts.speak(selected, false)
 
-func handle_item_list_item_selected(index):
-    print("Selected")
+func item_list_item_selected(index):
+    tts.speak("Selected", true)
 
-func handle_item_list_multi_selected(index, selected):
-    print("Multiselect")
+func item_list_multi_selected(index, selected):
+    tts.speak("Multiselect", true)
 
-func handle_item_list_nothing_selected():
-    print("Nothing selected")
+func item_list_nothing_selected():
+    tts.speak("Nothing selected", true)
 
 func input_item_list(event):
     var old_pos = position_in_children
@@ -55,10 +56,13 @@ func input_item_list(event):
         position_in_children = node.get_item_count()-1
     if old_pos != position_in_children:
         var text = node.get_item_text(position_in_children)
-        print("%s: %s of %s" % [text, position_in_children+1, node.get_item_count()])
+        tts.speak("%s: %s of %s" % [text, position_in_children+1, node.get_item_count()], true)
 
 func focus_label():
-    print(node.text)
+    var text = node.text
+    if text == "":
+        text = "blank"
+    tts.speak(text, true)
 
 func focus_line_edit():
     var text = "blank"
@@ -71,13 +75,13 @@ func focus_line_edit():
     var type = "editable text"
     if not node.editable:
         type = "text"
-    print("%s: %s" % [text, type])
+    tts.speak("%s: %s" % [text, type], true)
 
 func text_deleted(text):
-    print("%s deleted" % text)
+    tts.speak("%s deleted" % text, true)
 
 func text_inserted(text):
-    print(text)
+    tts.speak(text, true)
 
 var old_pos
 
@@ -86,35 +90,45 @@ func check_caret_moved():
     if old_pos != pos:
         var text = node.text
         if pos > len(text)-1:
-            print("blank")
+            tts.speak("blank", true)
         else:
-            print(text[pos])
+            tts.speak(text[pos], true)
         old_pos = pos
 
 func focus_menu_button():
-    print(node.text, ": menu")
+    tts.speak(node.text + ": menu", true)
 
-func render_popup_menu_item(id):
+func focus_popup_menu():
+    tts.speak("menu", true)
+
+func focus_popup_menu_item(id):
+    print("id: %s" % id)
+    print("count: %s" % node.get_item_count())
     var item = node.get_item_text(id)
-    var submenu = node.get_item_submenu(position_in_children)
+    var submenu = node.get_item_submenu(id)
     var tooltip = node.get_item_tooltip(position_in_children)
-    if submenu:
-        item = submenu
+    print("Tooltip: %s" % tooltip)
+    var disabled = node.is_item_disabled(id)
     if item and tooltip:
+        print("Got item and tooltip")
         item += ": "
         item += tooltip
     elif tooltip:
+        print("Got tooltip only")
         item = tooltip
     var shortcut = node.get_item_shortcut(position_in_children)
-    if shortcut:
+    if shortcut != null and shortcut.get_as_text() != "None":
+        print("Got shortcut: %s" % shortcut.get_as_text())
         item += ": "+shortcut.get_as_text()
-    return item
-
-func focus_popup_menu():
-    print("menu")
-
-func focus_popup_menu_item(id):
-    print(render_popup_menu_item(id))
+    if item == "":
+        item = "Unlabelled"
+    if submenu:
+        item += ": menu"
+    if disabled:
+        item += ": disabled"
+    item += ": " + str(id + 1) + " of " + str(node.get_item_count())
+    print("Item: %s" % item)
+    tts.speak(item, true)
 
 func render_tree_item():
     var item = node.get_selected()
@@ -123,16 +137,16 @@ func render_tree_item():
 
 func focus_tree():
     if node.get_selected():
-        print(render_tree_item(), ": tree item")
+        tts.speak(render_tree_item(), true)
     else:
-        print("tree")
+        tts.speak("tree", true)
 
 func select_tree():
     if node.has_focus():
-        print(render_tree_item())
+        tts.speak(render_tree_item(), true)
 
 func focused():
-    # print(node)
+    print("Focus: %s" % node)
     if node is MenuButton:
         focus_menu_button()
     elif node is Button:
@@ -148,9 +162,9 @@ func focused():
     elif node is Tree:
         focus_tree()
     else:
-        print("Focus entered.", node)
+        print("No handler")
     if node.hint_tooltip:
-        print(node.hint_tooltip)
+        tts.speak(node.hint_tooltip, false)
 
 func unfocused():
     position_in_children = 0
@@ -161,10 +175,11 @@ func gui_input(event):
     elif node is LineEdit:
         return check_caret_moved()
 
-func _init(node):
+func _init(tts, node):
     if node.is_in_group("accessible"):
         return
     node.add_to_group("accessible")
+    self.tts = tts
     self.node = node
     if not node is Container and not node is Panel and not node is Separator and not node is ScrollBar and not node is Popup and node.get_class() != "Control":
         node.set_focus_mode(Control.FOCUS_ALL)
@@ -174,13 +189,12 @@ func _init(node):
     node.connect("mouse_exited", self, "unfocused")
     node.connect("gui_input", self, "gui_input")
     if node is ItemList:
-        node.connect("item_selected", self, "handle_item_list_item_selected")
-        node.connect("multi_selected", self, "handle_item_list_multi_selected")
-        node.connect("nothing_selected", self, "handle_item_list_nothing_selected")
-        
-    elif node is LineEdit:
-        node.connect("text_deleted", self, "text_deleted")
-        node.connect("text_inserted", self, "text_inserted")
+        node.connect("item_selected", self, "item_list_item_selected")
+        node.connect("multi_selected", self, "item_list_multi_selected")
+        node.connect("nothing_selected", self, "item_list_nothing_selected")
+    # elif node is LineEdit:
+        # node.connect("text_deleted", self, "text_deleted")
+        # node.connect("text_inserted", self, "text_inserted")
     elif node is PopupMenu:
         node.connect("id_focused", self, "focus_popup_menu_item")
     elif node is Tree:
