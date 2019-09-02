@@ -17,24 +17,24 @@ func focus_button():
     if node.text:
         text = node.text
     if text:
-        tts.speak("%s: button" % text, true)
+        tts.speak("%s: button" % text, false)
     else:
-        tts.speak("button", true)
+        tts.speak("button", false)
 
 func focus_item_list():
     var count = node.get_item_count()
     var selected = node.get_selected_items()
-    tts.speak("list, %s %s" % [count, item_or_items(count)], true)
+    tts.speak("list, %s %s" % [count, item_or_items(count)], false)
     tts.speak(selected, false)
 
 func item_list_item_selected(index):
-    tts.speak("Selected", true)
+    tts.speak("Selected", false)
 
 func item_list_multi_selected(index, selected):
-    tts.speak("Multiselect", true)
+    tts.speak("Multiselect", false)
 
 func item_list_nothing_selected():
-    tts.speak("Nothing selected", true)
+    tts.speak("Nothing selected", false)
 
 func input_item_list(event):
     var old_pos = position_in_children
@@ -56,13 +56,13 @@ func input_item_list(event):
         position_in_children = node.get_item_count()-1
     if old_pos != position_in_children:
         var text = node.get_item_text(position_in_children)
-        tts.speak("%s: %s of %s" % [text, position_in_children+1, node.get_item_count()], true)
+        tts.speak("%s: %s of %s" % [text, position_in_children+1, node.get_item_count()], false)
 
 func focus_label():
     var text = node.text
     if text == "":
         text = "blank"
-    tts.speak(text, true)
+    tts.speak(text, false)
 
 func focus_line_edit():
     var text = "blank"
@@ -75,7 +75,7 @@ func focus_line_edit():
     var type = "editable text"
     if not node.editable:
         type = "text"
-    tts.speak("%s: %s" % [text, type], true)
+    tts.speak("%s: %s" % [text, type], false)
 
 func text_deleted(text):
     tts.speak("%s deleted" % text, true)
@@ -96,10 +96,10 @@ func check_caret_moved():
         old_pos = pos
 
 func focus_menu_button():
-    tts.speak(node.text + ": menu", true)
+    tts.speak(node.text + ": menu", false)
 
 func focus_popup_menu():
-    tts.speak("menu", true)
+    tts.speak("menu", false)
 
 func focus_popup_menu_item(id):
     print("id: %s" % id)
@@ -127,7 +127,6 @@ func focus_popup_menu_item(id):
     if disabled:
         item += ": disabled"
     item += ": " + str(id + 1) + " of " + str(node.get_item_count())
-    print("Item: %s" % item)
     tts.speak(item, true)
 
 func render_tree_item():
@@ -147,6 +146,10 @@ func select_tree():
 
 func focused():
     print("Focus: %s" % node)
+    tts.stop()
+    var parent = node.get_parent()
+    if parent is EditorProperty and parent.label:
+        tts.speak(parent.label, false)
     if node is MenuButton:
         focus_menu_button()
     elif node is Button:
