@@ -142,10 +142,10 @@ func focus_tab_container():
     tts.speak(text, false)
 
 func input_tab_container(event):
-    tts.stop()
-    var new_tab = node.current_tab
     if event.echo or not event.pressed:
         return
+    tts.stop()
+    var new_tab = node.current_tab
     if event.scancode == KEY_RIGHT:
         new_tab += 1
     elif event.scancode == KEY_LEFT:
