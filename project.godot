@@ -13,6 +13,14 @@ _global_script_class_icons={
 
 }
 
+[application]
+
+run/main_scene="res://player.tscn"
+
+[autoload]
+
+Globals="*res://globals.gd"
+
 [editor_plugins]
 
 enabled=[ "accessibility" ]
@@ -93,3 +101,8 @@ ui_end={
 "events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777230,"unicode":0,"echo":false,"script":null)
  ]
 }
+default_environment=false
+
+[input map]
+
+custom_font=false
