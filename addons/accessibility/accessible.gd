@@ -15,6 +15,7 @@ func item_or_items(count):
         return "items"
 
 func button_focus():
+    print(node.get_parent())
     var text
     if node.text:
         text = node.text
@@ -246,15 +247,20 @@ func gui_input(event):
     elif node is LineEdit:
         return check_caret_moved()
 
+func is_focusable():
+    if node is TabContainer:
+        return true
+    if node is Container or node is Panel or node is Separator or node is ScrollBar or node is Popup or node.get_class() == "Control":
+        return false
+    return true
+
 func _init(tts, node):
     if node.is_in_group("accessible"):
         return
     node.add_to_group("accessible")
     self.tts = tts
     self.node = node
-    if not node is Container and not node is Panel and not node is Separator and not node is ScrollBar and not node is Popup and node.get_class() != "Control":
-        node.set_focus_mode(Control.FOCUS_ALL)
-    elif node is TabContainer:
+    if is_focusable():
         node.set_focus_mode(Control.FOCUS_ALL)
     node.connect("focus_entered", self, "focused")
     node.connect("mouse_entered", self, "focused")
