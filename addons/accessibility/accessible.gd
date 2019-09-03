@@ -6,6 +6,8 @@ var node
 
 var position_in_children = 0
 
+var column_in_row = 0
+
 func item_or_items(count):
     if count == 1:
         return "item"
@@ -37,9 +39,9 @@ func item_list_nothing_selected():
     tts.speak("Nothing selected", false)
 
 func input_item_list(event):
-    var old_pos = position_in_children
     if event.echo or not event.pressed:
         return
+    var old_pos = position_in_children
     if event.scancode == KEY_UP:
         node.get_tree().set_input_as_handled()
         if position_in_children == 0:
@@ -132,18 +134,18 @@ func focus_popup_menu_item(id):
     tts.speak(item, true)
 
 func render_tree_item():
-    var item = node.get_selected()
     var result = ""
     for i in range(node.columns):
-        result += item.get_text(i) + ": "
-    if item.collapsed:
-        result += "collapsed "
-    else:
-        result += "expanded "
+        result += focused_tree_item.get_text(i) + ": "
+    if focused_tree_item.get_children():
+        if focused_tree_item.collapsed:
+            result += "collapsed "
+        else:
+            result += "expanded "
     result += "tree item"
-    if item.is_selected(0):
+    if focused_tree_item.is_selected(0):
         result += ": selected"
-    return result
+    tts.speak(result, true)
 
 func focus_tab_container():
     var text = node.get_tab_title(node.current_tab)
@@ -169,20 +171,64 @@ func input_tab_container(event):
 
 func focus_tree():
     if node.get_selected():
-        tts.speak(render_tree_item(), true)
+        render_tree_item()
     else:
         tts.speak("tree", true)
 
 func collapse_tree_item(item):
     if node.has_focus():
-        tts.speak("collapsed", true)
+        if item.collapsed:
+            tts.speak("collapsed", true)
+        else:
+            tts.speak("expanded", true)
+
+var focused_tree_item
 
 func input_tree(event):
-    pass
+    if event.echo or not event.pressed:
+        return
+    if not focused_tree_item:
+        focused_tree_item = node.get_root()
+    if event.scancode == KEY_UP:
+        node.accept_event()
+        focused_tree_item = focused_tree_item.get_prev_visible()
+        if not focused_tree_item:
+            focused_tree_item = node.get_root()
+        if node.select_mode == Tree.SELECT_SINGLE:
+            if node.columns == 1 and focused_tree_item.is_selectable(0):
+                # focused_tree_item.select(0)
+                pass
+        render_tree_item()
+    elif event.scancode == KEY_DOWN:
+        node.accept_event()
+        focused_tree_item = focused_tree_item.get_next_visible()
+        if not focused_tree_item:
+            focused_tree_item = node.get_root()
+        if node.select_mode == Tree.SELECT_SINGLE:
+            if node.columns == 1 and focused_tree_item.is_selectable(0):
+                # focused_tree_item.select(0)
+                pass
+        render_tree_item()
+    elif event.scancode == KEY_PLUS:
+        node.accept_event()
+        focused_tree_item.collapsed = false
+    elif event.scancode == KEY_MINUS:
+        node.accept_event()
+        focused_tree_item.collapsed = true
+    elif event.scancode == KEY_SPACE:
+        print("Got it")
+        node.accept_event()
+        tts.speak("Select", true)
 
 func select_tree_item():
     if node.has_focus():
-        tts.speak(render_tree_item(), true)
+        render_tree_item()
+
+func multi_select_tree_item(item, column, selected):
+    if selected:
+        tts.speak("selected", true)
+    else:
+        tts.speak("unselected", true)
 
 func focused():
     print("Focus: %s" % node)
@@ -251,4 +297,5 @@ func _init(tts, node):
     elif node is Tree:
         node.connect("item_collapsed", self, "collapse_tree_item")
         node.connect("item_selected", self, "select_tree_item")
+        node.connect("multi_selected", self, "multi_select_tree_item")
     node.connect("tree_exiting", self, "free")
