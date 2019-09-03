@@ -133,7 +133,16 @@ func focus_popup_menu_item(id):
 
 func render_tree_item():
     var item = node.get_selected()
-    var result = item.get_text(0)
+    var result = ""
+    for i in range(node.columns):
+        result += item.get_text(i) + ": "
+    if item.collapsed:
+        result += "collapsed "
+    else:
+        result += "expanded "
+    result += "tree item"
+    if item.is_selected(0):
+        result += ": selected"
     return result
 
 func focus_tab_container():
@@ -163,7 +172,14 @@ func focus_tree():
     else:
         tts.speak("tree", true)
 
-func select_tree():
+func collapse_tree_item(item):
+    if node.has_focus():
+        tts.speak("collapsed", true)
+
+func input_tree(event):
+    pass
+
+func select_tree_item():
     if node.has_focus():
         tts.speak(render_tree_item(), true)
 
@@ -200,10 +216,12 @@ func unfocused():
 func gui_input(event):
     if node is TabContainer:
         return input_tab_container(event)
-    if node is ItemList:
+    elif node is ItemList:
         return input_item_list(event)
     elif node is LineEdit:
         return check_caret_moved()
+    elif node is Tree:
+        return input_tree(event)
 
 func _init(tts, node):
     if node.is_in_group("accessible"):
@@ -230,5 +248,6 @@ func _init(tts, node):
     elif node is PopupMenu:
         node.connect("id_focused", self, "focus_popup_menu_item")
     elif node is Tree:
-        node.connect("item_selected", self, "select_tree")
+        node.connect("item_collapsed", self, "collapse_tree_item")
+        node.connect("item_selected", self, "select_tree_item")
     node.connect("tree_exiting", self, "free")
