@@ -14,7 +14,7 @@ func item_or_items(count):
     else:
         return "items"
 
-func focus_button():
+func button_focus():
     var text
     if node.text:
         text = node.text
@@ -23,7 +23,7 @@ func focus_button():
     else:
         tts.speak("button", false)
 
-func focus_item_list():
+func item_list_focus():
     var count = node.get_item_count()
     var selected = node.get_selected_items()
     tts.speak("list, %s %s" % [count, item_or_items(count)], false)
@@ -38,7 +38,7 @@ func item_list_multi_selected(index, selected):
 func item_list_nothing_selected():
     tts.speak("Nothing selected", false)
 
-func input_item_list(event):
+func item_list_input(event):
     if event.echo or not event.pressed:
         return
     var old_pos = position_in_children
@@ -60,13 +60,13 @@ func input_item_list(event):
         var text = node.get_item_text(position_in_children)
         tts.speak("%s: %s of %s" % [text, position_in_children+1, node.get_item_count()], false)
 
-func focus_label():
+func label_focus():
     var text = node.text
     if text == "":
         text = "blank"
     tts.speak(text, false)
 
-func focus_line_edit():
+func line_edit_focus():
     var text = "blank"
     if node.secret:
         text = "password"
@@ -99,13 +99,13 @@ func check_caret_moved():
     elif old_pos == null:
         old_pos = pos
 
-func focus_menu_button():
+func menu_button_focus():
     tts.speak(node.text + ": menu", false)
 
-func focus_popup_menu():
+func popup_menu_focus():
     tts.speak("menu", false)
 
-func focus_popup_menu_item(id):
+func popup_menu_item_id_focus(id):
     print("id: %s" % id)
     print("count: %s" % node.get_item_count())
     var item = node.get_item_text(id)
@@ -133,7 +133,7 @@ func focus_popup_menu_item(id):
     item += ": " + str(id + 1) + " of " + str(node.get_item_count())
     tts.speak(item, true)
 
-func render_tree_item():
+func tree_item_render():
     var focused_tree_item = node.get_selected()
     var result = ""
     for i in range(node.columns):
@@ -149,14 +149,37 @@ func render_tree_item():
     tts.speak(result, true)
 
 func tree_item_cell_selected():
-    render_tree_item()
+    tree_item_render()
 
-func focus_tab_container():
+func tree_focus():
+    if node.get_selected():
+        tree_item_render()
+    else:
+        tts.speak("tree", true)
+
+func tree_item_collapse(item):
+    if node.has_focus():
+        if item.collapsed:
+            tts.speak("collapsed", true)
+        else:
+            tts.speak("expanded", true)
+
+func tree_item_select():
+    if node.has_focus():
+        tree_item_render()
+
+func tree_item_multi_select(item, column, selected):
+    if selected:
+        tts.speak("selected", true)
+    else:
+        tts.speak("unselected", true)
+
+func tab_container_focus():
     var text = node.get_tab_title(node.current_tab)
     text += ": tab: " + str(node.current_tab + 1) + " of " + str(node.get_tab_count())
     tts.speak(text, false)
 
-func input_tab_container(event):
+func tab_container_input(event):
     if event.echo or not event.pressed:
         return
     var new_tab = node.current_tab
@@ -171,30 +194,7 @@ func input_tab_container(event):
     if node.current_tab != new_tab:
         node.current_tab = new_tab
         tts.stop()
-        focus_tab_container()
-
-func focus_tree():
-    if node.get_selected():
-        render_tree_item()
-    else:
-        tts.speak("tree", true)
-
-func collapse_tree_item(item):
-    if node.has_focus():
-        if item.collapsed:
-            tts.speak("collapsed", true)
-        else:
-            tts.speak("expanded", true)
-
-func select_tree_item():
-    if node.has_focus():
-        render_tree_item()
-
-func multi_select_tree_item(item, column, selected):
-    if selected:
-        tts.speak("selected", true)
-    else:
-        tts.speak("unselected", true)
+        tab_container_focus()
 
 func focused():
     print("Focus: %s" % node)
@@ -203,21 +203,21 @@ func focused():
     if parent is EditorProperty and parent.label:
         tts.speak(parent.label, false)
     if node is MenuButton:
-        focus_menu_button()
+        menu_button_focus()
     elif node is Button:
-        focus_button()
+        button_focus()
     elif node is ItemList:
-        focus_item_list()
+        item_list_focus()
     elif node is Label:
-        focus_label()
+        label_focus()
     elif node is LineEdit:
-        focus_line_edit()
+        line_edit_focus()
     elif node is PopupMenu:
-        focus_popup_menu()
+        popup_menu_focus()
     elif node is TabContainer:
-        focus_tab_container()
+        tab_container_focus()
     elif node is Tree:
-        focus_tree()
+        tree_focus()
     else:
         print("No handler")
     if node.hint_tooltip:
@@ -228,9 +228,9 @@ func unfocused():
 
 func gui_input(event):
     if node is TabContainer:
-        return input_tab_container(event)
+        return tab_container_input(event)
     elif node is ItemList:
-        return input_item_list(event)
+        return item_list_input(event)
     elif node is LineEdit:
         return check_caret_moved()
 
@@ -257,10 +257,10 @@ func _init(tts, node):
         # node.connect("text_deleted", self, "text_deleted")
         # node.connect("text_inserted", self, "text_inserted")
     elif node is PopupMenu:
-        node.connect("id_focused", self, "focus_popup_menu_item")
+        node.connect("id_focused", self, "popup_menu_item_id_focus")
     elif node is Tree:
-        node.connect("item_collapsed", self, "collapse_tree_item")
-        node.connect("item_selected", self, "select_tree_item")
-        node.connect("multi_selected", self, "multi_select_tree_item")
+        node.connect("item_collapsed", self, "tree_item_collapse")
+        node.connect("item_selected", self, "tree_item_select")
+        node.connect("multi_selected", self, "tree_item_multi_select")
         node.connect("cell_selected", self, "tree_item_cell_selected")
     node.connect("tree_exiting", self, "free")
