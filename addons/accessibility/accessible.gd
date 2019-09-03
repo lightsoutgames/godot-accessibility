@@ -148,8 +148,30 @@ func tree_item_render():
         result += ": selected"
     tts.speak(result, true)
 
-func tree_item_cell_selected():
-    tree_item_render()
+var prev_selected_cell
+
+func tree_item_selected():
+    var cell = node.get_selected()
+    if cell != prev_selected_cell:
+        print("New cell")
+        tree_item_render()
+        prev_selected_cell = cell
+    else:
+        var text = ""
+        for i in range(node.columns):
+            if cell.is_selected(i):
+                var title = node.get_column_title(i)
+                if title:
+                    text += title + ": "
+                text += cell.get_text(i) + ", "
+            if text != "":
+                tts.speak(text, true)
+
+func tree_item_multi_select(item, column, selected):
+    if selected:
+        tts.speak("selected", true)
+    else:
+        tts.speak("unselected", true)
 
 func tree_focus():
     if node.get_selected():
@@ -163,16 +185,6 @@ func tree_item_collapse(item):
             tts.speak("collapsed", true)
         else:
             tts.speak("expanded", true)
-
-func tree_item_select():
-    if node.has_focus():
-        tree_item_render()
-
-func tree_item_multi_select(item, column, selected):
-    if selected:
-        tts.speak("selected", true)
-    else:
-        tts.speak("unselected", true)
 
 func tab_container_focus():
     var text = node.get_tab_title(node.current_tab)
@@ -260,7 +272,10 @@ func _init(tts, node):
         node.connect("id_focused", self, "popup_menu_item_id_focus")
     elif node is Tree:
         node.connect("item_collapsed", self, "tree_item_collapse")
-        node.connect("item_selected", self, "tree_item_select")
+        node.connect("item_selected", self, "tree_item_selected")
         node.connect("multi_selected", self, "tree_item_multi_select")
-        node.connect("cell_selected", self, "tree_item_cell_selected")
+        if node.select_mode == Tree.SELECT_MULTI:
+            node.connect("cell_selected", self, "tree_item_selected")
+        else:
+            node.connect("item_selected", self, "tree_item_selected")
     node.connect("tree_exiting", self, "free")
