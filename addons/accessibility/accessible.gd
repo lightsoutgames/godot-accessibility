@@ -153,7 +153,6 @@ func focus_tab_container():
 func input_tab_container(event):
     if event.echo or not event.pressed:
         return
-    tts.stop()
     var new_tab = node.current_tab
     if event.scancode == KEY_RIGHT:
         new_tab += 1
@@ -163,8 +162,10 @@ func input_tab_container(event):
         new_tab = node.get_tab_count() - 1
     elif new_tab >= node.get_tab_count():
         new_tab = 0
-    node.current_tab = new_tab
-    focus_tab_container()
+    if node.current_tab != new_tab:
+        node.current_tab = new_tab
+        tts.stop()
+        focus_tab_container()
 
 func focus_tree():
     if node.get_selected():
