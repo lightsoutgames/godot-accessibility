@@ -8,6 +8,12 @@ var position_in_children = 0
 
 var column_in_row = 0
 
+func get_siblings():
+    var parent = node.get_parent()
+    if parent:
+        return parent.get_children()
+    return null
+
 func item_or_items(count):
     if count == 1:
         return "item"
@@ -246,8 +252,25 @@ func gui_input(event):
         return item_list_input(event)
     elif node is LineEdit:
         return check_caret_moved()
+    elif event.is_action_pressed("ui_left"):
+        return node.accept_event()
+    elif event.is_action_pressed("ui_right"):
+        return node.accept_event()
+    elif event.is_action_pressed("ui_up"):
+        return node.accept_event()
+    elif event.is_action_pressed("ui_down"):
+        return node.accept_event()
 
-func is_focusable():
+func is_in_bar():
+    var parent = node.get_parent()
+    if parent and parent is Container:
+        for child in parent.get_children():
+            if child and not is_focusable(child):
+                return false
+        return true
+    return false
+
+func is_focusable(node):
     if node is TabContainer:
         return true
     if node is Container or node is Panel or node is Separator or node is ScrollBar or node is Popup or node.get_class() == "Control":
@@ -260,7 +283,7 @@ func _init(tts, node):
     node.add_to_group("accessible")
     self.tts = tts
     self.node = node
-    if is_focusable():
+    if is_focusable(node):
         node.set_focus_mode(Control.FOCUS_ALL)
     node.connect("focus_entered", self, "focused")
     node.connect("mouse_entered", self, "focused")
@@ -278,7 +301,6 @@ func _init(tts, node):
         node.connect("id_focused", self, "popup_menu_item_id_focus")
     elif node is Tree:
         node.connect("item_collapsed", self, "tree_item_collapse")
-        node.connect("item_selected", self, "tree_item_selected")
         node.connect("multi_selected", self, "tree_item_multi_select")
         if node.select_mode == Tree.SELECT_MULTI:
             node.connect("cell_selected", self, "tree_item_selected")
