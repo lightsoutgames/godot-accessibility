@@ -134,7 +134,6 @@ func popup_menu_item_id_focus(id):
     print("Tooltip: %s" % tooltip)
     var disabled = node.is_item_disabled(id)
     if item and tooltip:
-        print("Got item and tooltip")
         item += ": "
         item += tooltip
     elif tooltip:
@@ -344,7 +343,6 @@ func is_focusable(node):
     if node is TabContainer:
         return true
     if node.get_class() == "EditorInspectorSection":
-        print("Got it")
         return true
     if node is Container or node is Panel or node is Separator or node is ScrollBar or node is Popup or node.get_class() == "Control":
         return false
