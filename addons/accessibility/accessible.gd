@@ -14,14 +14,23 @@ func get_siblings():
         return parent.get_children()
     return null
 
-func item_or_items(count):
+func singular_or_plural(count, singular, plural):
     if count == 1:
-        return "item"
+        return singular
     else:
-        return "items"
+        return plural
+
+func left_click(item := node):
+    var click = InputEventMouseButton.new()
+    click.button_index = BUTTON_LEFT
+    click.pressed = true
+    if item is Node:
+        click.position = item.rect_global_position
+    node.get_tree().input_event(click)
+    click.pressed = false
+    node.get_tree().input_event(click)
 
 func button_focus():
-    print(node.get_parent())
     var text
     if node.text:
         text = node.text
@@ -30,10 +39,14 @@ func button_focus():
     else:
         tts.speak("button", false)
 
+func texturebutton_focus():
+    print(node.texture_normal.get_data().get_rid().get_id())
+    tts.speak("button", false)
+
 func item_list_focus():
     var count = node.get_item_count()
     var selected = node.get_selected_items()
-    tts.speak("list, %s %s" % [count, item_or_items(count)], false)
+    tts.speak("list, %s %s" % [count, singular_or_plural(count, "item", "items")], false)
     tts.speak(selected, false)
 
 func item_list_item_selected(index):
@@ -46,7 +59,7 @@ func item_list_nothing_selected():
     tts.speak("Nothing selected", false)
 
 func item_list_input(event):
-    if event.echo or not event.pressed:
+    if event.is_echo() or not event.pressed:
         return
     var old_pos = position_in_children
     if event.scancode == KEY_UP:
@@ -157,7 +170,10 @@ func tree_item_render():
 
 var prev_selected_cell
 
+var button_index
+
 func tree_item_selected():
+    button_index = null
     var cell = node.get_selected()
     if cell != prev_selected_cell:
         print("New cell")
@@ -170,15 +186,61 @@ func tree_item_selected():
                 var title = node.get_column_title(i)
                 if title:
                     text += title + ": "
-                text += cell.get_text(i) + ", "
-            if text != "":
-                tts.speak(text, true)
+                var column_text = cell.get_text(i)
+                if column_text:
+                    text += column_text + ", "
+                var button_count = cell.get_button_count(i)
+                if button_count != 0:
+                    button_index = 0
+                    text += str(button_count) + " " + singular_or_plural(button_count, "button", "buttons") + ", "
+                    var button_tooltip = cell.get_button_tooltip(i, button_index)
+                    if button_tooltip:
+                        text += button_tooltip + ": button, "
+                    if button_count > 1:
+                        text += "Use Home and End to switch focus, "
+        if text != "":
+            tts.speak(text, true)
+        else:
+            tts.speak("blank", true)
 
 func tree_item_multi_select(item, column, selected):
     if selected:
         tts.speak("selected", true)
     else:
         tts.speak("unselected", true)
+
+func tree_input(event):
+    if not event.is_pressed() or event.is_echo():
+        return
+    var item = node.get_selected()
+    var column
+    if item:
+        for i in range(node.columns):
+            if item.is_selected(i):
+                column = i
+    if item and column and button_index != null:
+        if event.is_action_pressed("ui_select"):
+            node.accept_event()
+            return node.emit_signal("button_pressed", item, column, button_index + 1)
+        var new_button_index = button_index
+        if event.scancode == KEY_HOME:
+            node.accept_event()
+            new_button_index += 1
+            if new_button_index >= item.get_button_count(column):
+                new_button_index = 0
+        elif event.scancode == KEY_END:
+            node.accept_event()
+            new_button_index -= 1
+            if new_button_index < 0:
+                new_button_index = item.get_button_count(column) - 1
+        if new_button_index != button_index:
+            button_index = new_button_index
+            var tooltip = item.get_button_tooltip(column, button_index)
+            var text = ""
+            if tooltip:
+                text += tooltip + ": "
+            text += "button"
+            tts.speak(text, true)
 
 func tree_focus():
     if node.get_selected():
@@ -199,7 +261,7 @@ func tab_container_focus():
     tts.speak(text, false)
 
 func tab_container_input(event):
-    if event.echo or not event.pressed:
+    if event.is_echo() or not event.pressed:
         return
     var new_tab = node.current_tab
     if event.scancode == KEY_RIGHT:
@@ -225,6 +287,8 @@ func focused():
         menu_button_focus()
     elif node is Button:
         button_focus()
+    elif node.get_class() == "EditorInspectorSection":
+        editor_inspector_section_focus()
     elif node is ItemList:
         item_list_focus()
     elif node is Label:
@@ -235,6 +299,8 @@ func focused():
         popup_menu_focus()
     elif node is TabContainer:
         tab_container_focus()
+    elif node is TextureButton:
+        texturebutton_focus()
     elif node is Tree:
         tree_focus()
     else:
@@ -252,6 +318,10 @@ func gui_input(event):
         return item_list_input(event)
     elif node is LineEdit:
         return check_caret_moved()
+    elif node is Tree:
+        return tree_input(event)
+    elif node.get_class() == "EditorInspectorSection":
+        return editor_inspector_section_input(event)
     elif event.is_action_pressed("ui_left"):
         return node.accept_event()
     elif event.is_action_pressed("ui_right"):
@@ -273,9 +343,22 @@ func is_in_bar():
 func is_focusable(node):
     if node is TabContainer:
         return true
+    if node.get_class() == "EditorInspectorSection":
+        print("Got it")
+        return true
     if node is Container or node is Panel or node is Separator or node is ScrollBar or node is Popup or node.get_class() == "Control":
         return false
     return true
+
+func editor_inspector_section_focus():
+    print(node.get_child_count())
+    tts.speak("editor inspector section", true)
+
+func editor_inspector_section_input(event):
+    if  event.is_echo():
+        return
+    if event.is_action_pressed("ui_select"):
+        left_click()
 
 func _init(tts, node):
     if node.is_in_group("accessible"):
