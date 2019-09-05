@@ -266,6 +266,10 @@ func tab_container_focus():
     text += ": tab: " + str(node.current_tab + 1) + " of " + str(node.get_tab_count())
     tts.speak(text, false)
 
+func tab_container_tab_changed(tab):
+    tts.stop()
+    tab_container_focus()
+
 func tab_container_input(event):
     var new_tab = node.current_tab
     if event.is_action_pressed("ui_right"):
@@ -280,8 +284,6 @@ func tab_container_input(event):
         new_tab = 0
     if node.current_tab != new_tab:
         node.current_tab = new_tab
-        tts.stop()
-        tab_container_focus()
 
 func focused():
     print("Focus: %s" % node)
@@ -387,6 +389,8 @@ func _init(tts, node):
         # node.connect("text_inserted", self, "text_inserted")
     elif node is PopupMenu:
         node.connect("id_focused", self, "popup_menu_item_id_focus")
+    elif node is TabContainer:
+        node.connect("tab_changed", self, "tab_container_tab_changed")
     elif node is Tree:
         node.connect("item_collapsed", self, "tree_item_collapse")
         node.connect("multi_selected", self, "tree_item_multi_select")
