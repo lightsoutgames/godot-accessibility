@@ -16,6 +16,10 @@ func augment_tree(node):
         augment_tree(child)
 
 func set_initial_screen_focus(screen):
+    tts.speak(screen, true)
+    var control = find_focusable_control(get_tree().root)
+    if control.get_focus_owner() != null:
+        return
     self.augment_tree(get_tree().root)
     var focus = find_focusable_control(get_tree().root)
     if not focus:
@@ -34,6 +38,12 @@ func find_focusable_control(node):
 
 func set_initial_scene_focus(scene):
     print("Set focus in scene")
+    self.augment_tree(get_tree().root)
+    var focus = find_focusable_control(get_tree().root)
+    if not focus:
+        return
+    focus.grab_click_focus()
+    focus.grab_focus()
 
 func _enter_tree():
     tts = TTS.new()

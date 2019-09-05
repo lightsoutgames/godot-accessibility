@@ -30,6 +30,19 @@ func left_click(item := node):
     click.pressed = false
     node.get_tree().input_event(click)
 
+func close_key_event_dialog():
+    node.get_ok().emit_signal("pressed")
+
+var dialog_close_timer = Timer.new()
+
+func accept_dialog_focus():
+    if not dialog_close_timer.is_connected("timeout", self, "close_key_event_dialog"):
+        dialog_close_timer.connect("timeout", self, "close_key_event_dialog")
+    dialog_close_timer.one_shot = true
+    dialog_close_timer.start(5)
+    if dialog_close_timer.get_parent() == null:
+        node.add_child(dialog_close_timer)
+
 func button_focus():
     var text
     if node.text:
@@ -40,7 +53,6 @@ func button_focus():
         tts.speak("button", false)
 
 func texturebutton_focus():
-    print(node.texture_normal.get_data().get_rid().get_id())
     tts.speak("button", false)
 
 func item_list_focus():
@@ -59,22 +71,22 @@ func item_list_nothing_selected():
     tts.speak("Nothing selected", false)
 
 func item_list_input(event):
-    if event.is_echo() or not event.pressed:
-        return
     var old_pos = position_in_children
-    if event.scancode == KEY_UP:
-        node.get_tree().set_input_as_handled()
+    if event.is_action_pressed("ui_up"):
+        node.accept_event()
         if position_in_children == 0:
             return
         position_in_children -= 1
-    elif event.scancode == KEY_DOWN:
-        node.get_tree().set_input_as_handled()
+    elif event.is_action_pressed("ui_down"):
+        node.accept_event()
         if position_in_children >= node.get_item_count()-1:
             return
         position_in_children += 1
-    elif event.scancode == KEY_HOME:
+    elif event.is_action_pressed("ui_home"):
+        node.accept_event()
         position_in_children = 0
-    elif event.scancode == KEY_END:
+    elif event.is_action_pressed("ui_end"):
+        node.accept_event()
         position_in_children = node.get_item_count()-1
     if old_pos != position_in_children:
         var text = node.get_item_text(position_in_children)
@@ -131,17 +143,14 @@ func popup_menu_item_id_focus(id):
     var item = node.get_item_text(id)
     var submenu = node.get_item_submenu(id)
     var tooltip = node.get_item_tooltip(position_in_children)
-    print("Tooltip: %s" % tooltip)
     var disabled = node.is_item_disabled(id)
     if item and tooltip:
         item += ": "
         item += tooltip
     elif tooltip:
-        print("Got tooltip only")
         item = tooltip
     var shortcut = node.get_item_shortcut(position_in_children)
     if shortcut != null and shortcut.get_as_text() != "None":
-        print("Got shortcut: %s" % shortcut.get_as_text())
         item += ": "+shortcut.get_as_text()
     if item == "":
         item = "Unlabelled"
@@ -175,7 +184,6 @@ func tree_item_selected():
     button_index = null
     var cell = node.get_selected()
     if cell != prev_selected_cell:
-        print("New cell")
         tree_item_render()
         prev_selected_cell = cell
     else:
@@ -209,25 +217,24 @@ func tree_item_multi_select(item, column, selected):
         tts.speak("unselected", true)
 
 func tree_input(event):
-    if not event.is_pressed() or event.is_echo():
-        return
     var item = node.get_selected()
     var column
     if item:
         for i in range(node.columns):
             if item.is_selected(i):
                 column = i
+                break
     if item and column and button_index != null:
-        if event.is_action_pressed("ui_select"):
+        if event.is_action_pressed("ui_accept"):
             node.accept_event()
             return node.emit_signal("button_pressed", item, column, button_index + 1)
         var new_button_index = button_index
-        if event.scancode == KEY_HOME:
+        if event.is_action_pressed("ui_home"):
             node.accept_event()
             new_button_index += 1
             if new_button_index >= item.get_button_count(column):
                 new_button_index = 0
-        elif event.scancode == KEY_END:
+        elif event.is_action_pressed("ui_end"):
             node.accept_event()
             new_button_index -= 1
             if new_button_index < 0:
@@ -260,12 +267,12 @@ func tab_container_focus():
     tts.speak(text, false)
 
 func tab_container_input(event):
-    if event.is_echo() or not event.pressed:
-        return
     var new_tab = node.current_tab
-    if event.scancode == KEY_RIGHT:
+    if event.is_action_pressed("ui_right"):
+        node.accept_event()
         new_tab += 1
-    elif event.scancode == KEY_LEFT:
+    elif event.is_action_pressed("ui_left"):
+        node.accept_event()
         new_tab -= 1
     if new_tab < 0:
         new_tab = node.get_tab_count() - 1
@@ -284,6 +291,8 @@ func focused():
         tts.speak(parent.label, false)
     if node is MenuButton:
         menu_button_focus()
+    elif node is AcceptDialog:
+        accept_dialog_focus()
     elif node is Button:
         button_focus()
     elif node.get_class() == "EditorInspectorSection":
@@ -353,9 +362,7 @@ func editor_inspector_section_focus():
     tts.speak("editor inspector section", true)
 
 func editor_inspector_section_input(event):
-    if  event.is_echo():
-        return
-    if event.is_action_pressed("ui_select"):
+    if event.is_action_pressed("ui_accept"):
         left_click()
 
 func _init(tts, node):
