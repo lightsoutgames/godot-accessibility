@@ -361,12 +361,23 @@ func is_focusable(node):
     return true
 
 func editor_inspector_section_focus():
-    print(node.get_child_count())
-    tts.speak("editor inspector section", true)
+    var child = node.get_children()[0]
+    var expanded = child.is_visible_in_tree()
+    tts.speak("editor inspector section:", true)
+    if expanded:
+        tts.speak("expanded", false)
+    else:
+        tts.speak("collapsed", false)
 
 func editor_inspector_section_input(event):
     if event.is_action_pressed("ui_accept"):
         left_click()
+        var child = node.get_children()[0]
+        var expanded = child.is_visible_in_tree()
+        if expanded:
+            tts.speak("expanded", true)
+        else:
+            tts.speak("collapsed", true)
 
 func _init(tts, node):
     if node.is_in_group("accessible"):
