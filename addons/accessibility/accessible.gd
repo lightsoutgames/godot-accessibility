@@ -319,6 +319,7 @@ func focused():
         tts.speak(node.hint_tooltip, false)
 
 func unfocused():
+    print("Unfocused")
     position_in_children = 0
 
 func gui_input(event):

@@ -1,6 +1,6 @@
 extends Node
 
-const TTS = preload("res://godot_tts.gdns")
+const TTS = preload("res://addons/godot-tts/godot_tts.gdns")
 var tts
 
 # Called when the node enters the scene tree for the first time.

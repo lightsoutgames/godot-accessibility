@@ -3,7 +3,7 @@ extends EditorPlugin
 
 var Accessible = preload("accessible.gd")
 
-const TTS = preload("res://godot_tts.gdns")
+const TTS = preload("res://addons/godot-tts/godot_tts.gdns")
 var tts
 
 func augment_node(node):
@@ -54,3 +54,8 @@ func _enter_tree():
 func _exit_tree():
     # Clean-up of the plugin goes here
     pass
+
+func _notification(what):
+    print("Notified: %s" % what)
+    if what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
+        print("User requested the project to quit")
