@@ -30,6 +30,13 @@ func left_click(item := node):
     click.pressed = false
     node.get_tree().input_event(click)
 
+func guess_label():
+    var parent = node.get_parent()
+    while parent:
+        if parent is EditorProperty and parent.label:
+            return parent.label
+        parent = parent.get_parent()
+
 func close_key_event_dialog():
     node.get_ok().emit_signal("pressed")
 
@@ -310,9 +317,9 @@ func tab_container_input(event):
 func focused():
     print("Focus: %s" % node)
     tts.stop()
-    var parent = node.get_parent()
-    if parent is EditorProperty and parent.label:
-        tts.speak(parent.label, false)
+    var label = guess_label()
+    if label:
+        tts.speak(label, false)
     if node is MenuButton:
         menu_button_focus()
     elif node is AcceptDialog:
