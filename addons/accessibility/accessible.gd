@@ -43,6 +43,28 @@ func accept_dialog_focus():
     if dialog_close_timer.get_parent() == null:
         node.add_child(dialog_close_timer)
 
+func checkbox_focus():
+    var text = ""
+    if node.text:
+        text = node.text
+    var state
+    if node.pressed:
+        state = "checked"
+    else:
+        state = "unchecked"
+    if text:
+        text += ": " + state
+    else:
+        text = state
+    text += " checkbox"
+    tts.speak(text, false)
+
+func checkbox_toggled(checked):
+    if checked:
+        tts.speak("checked", true)
+    else:
+        tts.speak("unchecked", true)
+
 func button_focus():
     var text
     if node.text:
@@ -295,6 +317,8 @@ func focused():
         menu_button_focus()
     elif node is AcceptDialog:
         accept_dialog_focus()
+    elif node is CheckBox:
+        checkbox_focus()
     elif node is Button:
         button_focus()
     elif node.get_class() == "EditorInspectorSection":
@@ -392,7 +416,9 @@ func _init(tts, node):
     node.connect("focus_exited", self, "unfocused")
     node.connect("mouse_exited", self, "unfocused")
     node.connect("gui_input", self, "gui_input")
-    if node is ItemList:
+    if node is CheckBox:
+        node.connect("toggled", self, "checkbox_toggled")
+    elif node is ItemList:
         node.connect("item_selected", self, "item_list_item_selected")
         node.connect("multi_selected", self, "item_list_multi_selected")
         node.connect("nothing_selected", self, "item_list_nothing_selected")

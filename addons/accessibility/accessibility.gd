@@ -56,6 +56,6 @@ func _exit_tree():
     pass
 
 func _notification(what):
-    print("Notified: %s" % what)
+    # print("Notified: %s" % what)
     if what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
         print("User requested the project to quit")
