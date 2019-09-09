@@ -51,18 +51,11 @@ func accept_dialog_focus():
         node.add_child(dialog_close_timer)
 
 func checkbox_focus():
-    var text = ""
-    if node.text:
-        text = node.text
-    var state
+    var text
     if node.pressed:
-        state = "checked"
+        text = "checked"
     else:
-        state = "unchecked"
-    if text:
-        text += ": " + state
-    else:
-        text = state
+        text = "unchecked"
     text += " checkbox"
     tts.speak(text, false)
 
