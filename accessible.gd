@@ -20,12 +20,14 @@ func singular_or_plural(count, singular, plural):
     else:
         return plural
 
-func left_click(item := node):
+func click(item := node, button_index = BUTTON_LEFT):
     var click = InputEventMouseButton.new()
-    click.button_index = BUTTON_LEFT
+    click.button_index = button_index
     click.pressed = true
     if item is Node:
         click.position = item.rect_global_position
+    else:
+        click.position = node.get_tree().root.get_mouse_position()
     node.get_tree().input_event(click)
     click.pressed = false
     node.get_tree().input_event(click)
@@ -160,20 +162,31 @@ func popup_menu_focus():
     tts.speak("menu", false)
 
 func popup_menu_item_id_focus(id):
-    print("id: %s" % id)
-    print("count: %s" % node.get_item_count())
-    var item = node.get_item_text(id)
-    var submenu = node.get_item_submenu(id)
-    var tooltip = node.get_item_tooltip(position_in_children)
-    var disabled = node.is_item_disabled(id)
+    var index = node.get_item_index(id)
+    print("id: %s, index: %s" % [id, index])
+    if index == -1:
+        index = id
+    var item = node.get_item_text(index)
+    var submenu = node.get_item_submenu(index)
+    if submenu and not item:
+        item = submenu
+    var tooltip = node.get_item_tooltip(index)
+    var disabled = node.is_item_disabled(index)
     if item and tooltip:
         item += ": "
         item += tooltip
     elif tooltip:
         item = tooltip
-    var shortcut = node.get_item_shortcut(position_in_children)
-    if shortcut != null and shortcut.get_as_text() != "None":
-        item += ": "+shortcut.get_as_text()
+    var shortcut = node.get_item_shortcut(index)
+    if shortcut:
+        var name = shortcut.resource_name
+        var text = shortcut.get_as_text()
+        if name and text != "None":
+            item += name + ": " +text
+        elif name:
+            item = name
+        elif text:
+            item = text
     if item == "":
         item = "Unlabelled"
     if submenu:
@@ -246,6 +259,14 @@ func tree_input(event):
             if item.is_selected(i):
                 column = i
                 break
+    if item and event is InputEventKey and event.pressed and not event.echo:
+        var area
+        if column:
+            area = node.get_item_area_rect(item, column)
+        else:
+            area = node.get_item_area_rect(item)
+        var position = Vector2(node.rect_global_position.x + area.position.x, node.rect_global_position.y + area.position.y)
+        node.get_tree().root.warp_mouse(position)
     if item and column and button_index != null:
         if event.is_action_pressed("ui_accept"):
             node.accept_event()
@@ -309,6 +330,7 @@ func tab_container_input(event):
 
 func focused():
     print("Focus: %s" % node)
+    node.get_tree().root.warp_mouse(node.rect_global_position)
     tts.stop()
     var label = guess_label()
     if label:
@@ -346,7 +368,14 @@ func unfocused():
     print("Unfocused")
     position_in_children = 0
 
+func click_focused():
+    if node.has_focus():
+        return
+    node.grab_focus()
+
 func gui_input(event):
+    if event is InputEventKey and event.pressed and not event.echo and event.scancode == KEY_MENU:
+        return click(null, BUTTON_RIGHT)
     if node is TabContainer:
         return tab_container_input(event)
     elif node is ItemList:
@@ -395,7 +424,7 @@ func editor_inspector_section_focus():
 
 func editor_inspector_section_input(event):
     if event.is_action_pressed("ui_accept"):
-        left_click()
+        click()
         var child = node.get_children()[0]
         var expanded = child.is_visible_in_tree()
         if expanded:
@@ -412,7 +441,7 @@ func _init(tts, node):
     if is_focusable(node):
         node.set_focus_mode(Control.FOCUS_ALL)
     node.connect("focus_entered", self, "focused")
-    node.connect("mouse_entered", self, "focused")
+    node.connect("mouse_entered", self, "click_focused")
     node.connect("focus_exited", self, "unfocused")
     node.connect("mouse_exited", self, "unfocused")
     node.connect("gui_input", self, "gui_input")
