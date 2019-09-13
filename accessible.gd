@@ -20,12 +20,14 @@ func singular_or_plural(count, singular, plural):
     else:
         return plural
 
-func left_click(item := node):
+func click(item := node, button_index = BUTTON_LEFT):
     var click = InputEventMouseButton.new()
-    click.button_index = BUTTON_LEFT
+    click.button_index = button_index
     click.pressed = true
     if item is Node:
         click.position = item.rect_global_position
+    else:
+        click.position = node.get_tree().root.get_mouse_position()
     node.get_tree().input_event(click)
     click.pressed = false
     node.get_tree().input_event(click)
@@ -51,13 +53,13 @@ func accept_dialog_focus():
         node.add_child(dialog_close_timer)
 
 func checkbox_focus():
-    var text
+    var tokens = PoolStringArray([])
     if node.pressed:
-        text = "checked"
+        tokens.append("checked")
     else:
-        text = "unchecked"
-    text += " checkbox"
-    tts.speak(text, false)
+        tokens.append("unchecked")
+    tokens.append(" checkbox")
+    tts.speak(tokens.join(" "), false)
 
 func checkbox_toggled(checked):
     if checked:
@@ -65,14 +67,17 @@ func checkbox_toggled(checked):
     else:
         tts.speak("unchecked", true)
 
+var spoke_hint_tooltip
+
 func button_focus():
-    var text
+    var tokens = PoolStringArray([])
     if node.text:
-        text = node.text
-    if text:
-        tts.speak("%s: button" % text, false)
-    else:
-        tts.speak("button", false)
+        tokens.append(node.text)
+    elif node.hint_tooltip:
+        spoke_hint_tooltip = true
+        tokens.append(node.hint_tooltip)
+    tokens.append("button")
+    tts.speak(tokens.join(": "), false)
 
 func texturebutton_focus():
     tts.speak("button", false)
@@ -84,13 +89,13 @@ func item_list_focus():
     tts.speak(selected, false)
 
 func item_list_item_selected(index):
-    tts.speak("Selected", false)
+    tts.speak("Selected", true)
 
 func item_list_multi_selected(index, selected):
     tts.speak("Multiselect", false)
 
 func item_list_nothing_selected():
-    tts.speak("Nothing selected", false)
+    tts.speak("Nothing selected", true)
 
 func item_list_input(event):
     var old_pos = position_in_children
@@ -154,49 +159,62 @@ func check_caret_moved():
         old_pos = pos
 
 func menu_button_focus():
-    tts.speak(node.text + ": menu", false)
+    var tokens = PoolStringArray([])
+    if node.text:
+        tokens.append(node.text)
+    if node.hint_tooltip:
+        tokens.append(node.hint_tooltip)
+        spoke_hint_tooltip = true
+    tokens.append("menu")
+    tts.speak(tokens.join(": "), false)
 
 func popup_menu_focus():
     tts.speak("menu", false)
 
 func popup_menu_item_id_focus(id):
-    print("id: %s" % id)
-    print("count: %s" % node.get_item_count())
-    var item = node.get_item_text(id)
-    var submenu = node.get_item_submenu(id)
-    var tooltip = node.get_item_tooltip(position_in_children)
-    var disabled = node.is_item_disabled(id)
-    if item and tooltip:
-        item += ": "
-        item += tooltip
-    elif tooltip:
-        item = tooltip
-    var shortcut = node.get_item_shortcut(position_in_children)
-    if shortcut != null and shortcut.get_as_text() != "None":
-        item += ": "+shortcut.get_as_text()
-    if item == "":
-        item = "Unlabelled"
+    var tokens = PoolStringArray([])
+    var index = node.get_item_index(id)
+    print("id: %s, index: %s" % [id, index])
+    if index == -1:
+        index = id
+    var item = node.get_item_text(index)
+    if item:
+        tokens.append(item)
+    var submenu = node.get_item_submenu(index)
     if submenu:
-        item += ": menu"
+        tokens.append(submenu)
+        tokens.append("menu")
+    var tooltip = node.get_item_tooltip(index)
+    if tooltip:
+        tokens.append(tooltip)
+    var disabled = node.is_item_disabled(index)
     if disabled:
-        item += ": disabled"
-    item += ": " + str(id + 1) + " of " + str(node.get_item_count())
-    tts.speak(item, true)
+        tokens.append("disabled")
+    var shortcut = node.get_item_shortcut(index)
+    if shortcut:
+        var name = shortcut.resource_name
+        if name:
+            tokens.append(name)
+        var text = shortcut.get_as_text()
+        if text != "None":
+            tokens.append(text)
+    tokens.append(str(id + 1) + " of " + str(node.get_item_count()))
+    tts.speak(tokens.join(": "), true)
 
 func tree_item_render():
     var focused_tree_item = node.get_selected()
-    var result = ""
+    var tokens = PoolStringArray([])
     for i in range(node.columns):
-        result += focused_tree_item.get_text(i) + ": "
+        tokens.append(focused_tree_item.get_text(i))
     if focused_tree_item.get_children():
         if focused_tree_item.collapsed:
-            result += "collapsed "
+            tokens.append("collapsed")
         else:
-            result += "expanded "
-    result += "tree item"
+            tokens.append("expanded")
+    tokens.append("tree item")
     if focused_tree_item.is_selected(0):
-        result += ": selected"
-    tts.speak(result, true)
+        tokens.append("selected")
+    tts.speak(tokens.join(": "), true)
 
 var prev_selected_cell
 
@@ -209,28 +227,26 @@ func tree_item_selected():
         tree_item_render()
         prev_selected_cell = cell
     else:
-        var text = ""
+        var tokens = PoolStringArray([])
         for i in range(node.columns):
             if cell.is_selected(i):
                 var title = node.get_column_title(i)
                 if title:
-                    text += title + ": "
+                    tokens.append(title)
                 var column_text = cell.get_text(i)
                 if column_text:
-                    text += column_text + ", "
+                    tokens.append(column_text)
                 var button_count = cell.get_button_count(i)
                 if button_count != 0:
                     button_index = 0
-                    text += str(button_count) + " " + singular_or_plural(button_count, "button", "buttons") + ", "
+                    tokens.append(str(button_count) + " " + singular_or_plural(button_count, "button", "buttons"))
                     var button_tooltip = cell.get_button_tooltip(i, button_index)
                     if button_tooltip:
-                        text += button_tooltip + ": button, "
+                        tokens.append(button_tooltip)
+                        tokens.append("button")
                     if button_count > 1:
-                        text += "Use Home and End to switch focus, "
-        if text != "":
-            tts.speak(text, true)
-        else:
-            tts.speak("blank", true)
+                        tokens.append("Use Home and End to switch focus.")
+        tts.speak(tokens.join(": "), true)
 
 func tree_item_multi_select(item, column, selected):
     if selected:
@@ -246,6 +262,14 @@ func tree_input(event):
             if item.is_selected(i):
                 column = i
                 break
+    if item and event is InputEventKey and event.pressed and not event.echo:
+        var area
+        if column:
+            area = node.get_item_area_rect(item, column)
+        else:
+            area = node.get_item_area_rect(item)
+        var position = Vector2(node.rect_global_position.x + area.position.x, node.rect_global_position.y + area.position.y)
+        node.get_tree().root.warp_mouse(position)
     if item and column and button_index != null:
         if event.is_action_pressed("ui_accept"):
             node.accept_event()
@@ -263,12 +287,12 @@ func tree_input(event):
                 new_button_index = item.get_button_count(column) - 1
         if new_button_index != button_index:
             button_index = new_button_index
+            var tokens = PoolStringArray([])
             var tooltip = item.get_button_tooltip(column, button_index)
-            var text = ""
             if tooltip:
-                text += tooltip + ": "
-            text += "button"
-            tts.speak(text, true)
+                tokens.append(tooltip)
+            tokens.append("button")
+            tts.speak(tokens.join(": "), true)
 
 func tree_focus():
     if node.get_selected():
@@ -309,6 +333,7 @@ func tab_container_input(event):
 
 func focused():
     print("Focus: %s" % node)
+    node.get_tree().root.warp_mouse(node.rect_global_position)
     tts.stop()
     var label = guess_label()
     if label:
@@ -339,14 +364,22 @@ func focused():
         tree_focus()
     else:
         print("No handler")
-    if node.hint_tooltip:
+    if node.hint_tooltip and not spoke_hint_tooltip:
         tts.speak(node.hint_tooltip, false)
+    spoke_hint_tooltip = false
 
 func unfocused():
     print("Unfocused")
     position_in_children = 0
 
+func click_focused():
+    if node.has_focus():
+        return
+    node.grab_focus()
+
 func gui_input(event):
+    if event is InputEventKey and event.pressed and not event.echo and event.scancode == KEY_MENU:
+        return click(null, BUTTON_RIGHT)
     if node is TabContainer:
         return tab_container_input(event)
     elif node is ItemList:
@@ -387,15 +420,16 @@ func is_focusable(node):
 func editor_inspector_section_focus():
     var child = node.get_children()[0]
     var expanded = child.is_visible_in_tree()
-    tts.speak("editor inspector section:", true)
+    var tokens = PoolStringArray(["editor inspector section"])
     if expanded:
-        tts.speak("expanded", false)
+        tokens.append("expanded")
     else:
-        tts.speak("collapsed", false)
+        tokens.append("collapsed")
+    tts.speak(tokens.join(": "), false)
 
 func editor_inspector_section_input(event):
     if event.is_action_pressed("ui_accept"):
-        left_click()
+        click()
         var child = node.get_children()[0]
         var expanded = child.is_visible_in_tree()
         if expanded:
@@ -412,7 +446,7 @@ func _init(tts, node):
     if is_focusable(node):
         node.set_focus_mode(Control.FOCUS_ALL)
     node.connect("focus_entered", self, "focused")
-    node.connect("mouse_entered", self, "focused")
+    node.connect("mouse_entered", self, "click_focused")
     node.connect("focus_exited", self, "unfocused")
     node.connect("mouse_exited", self, "unfocused")
     node.connect("gui_input", self, "gui_input")
