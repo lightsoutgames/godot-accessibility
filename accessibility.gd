@@ -3,7 +3,8 @@ extends EditorPlugin
 
 var Accessible = preload("accessible.gd")
 
-const TTS = preload("res://addons/godot-tts/godot-tts.gdns")
+var TTS = preload("../godot-tts/TTS.gd")
+
 var tts
 
 func augment_node(node):
