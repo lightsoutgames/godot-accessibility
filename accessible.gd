@@ -219,6 +219,20 @@ func tree_item_render():
         tokens.append("selected")
     tts.speak(tokens.join(": "), true)
 
+func tree_item_deselect_all(item: TreeItem):
+    for i in range(node.columns):
+        item.deselect(i)
+
+func tree_deselect_all_but(target: TreeItem, item: TreeItem):
+    if item != target:
+        tree_item_deselect_all(item)
+    if item.get_children():
+        tree_deselect_all_but(target, item.get_children())
+    var next = item.get_next()
+    while next:
+        tree_deselect_all_but(target, next)
+        next = next.get_next()
+
 var prev_selected_cell
 
 var button_index
@@ -226,6 +240,10 @@ var button_index
 func tree_item_selected():
     button_index = null
     var cell = node.get_selected()
+    if cell:
+        cell.select(0)
+        if node.select_mode == Tree.SELECT_MULTI:
+            tree_deselect_all_but(cell, node.get_root())
     if cell != prev_selected_cell:
         tree_item_render()
         prev_selected_cell = cell
