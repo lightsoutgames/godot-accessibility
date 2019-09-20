@@ -334,7 +334,7 @@ func tab_container_input(event):
     if node.current_tab != new_tab:
         node.current_tab = new_tab
 
-func focused():
+func focus():
     print("Focus: %s" % node)
     node.get_tree().root.warp_mouse(node.rect_global_position)
     tts.stop()
@@ -368,16 +368,17 @@ func focused():
     elif node is Tree:
         tree_focus()
     else:
+        tts.speak(node.get_class(), true)
         print("No handler")
     if node.hint_tooltip and not spoke_hint_tooltip:
         tts.speak(node.hint_tooltip, false)
     spoke_hint_tooltip = false
 
-func unfocused():
+func unfocus():
     print("Unfocused")
     position_in_children = 0
 
-func click_focused():
+func click_focus():
     if node.has_focus():
         return
     print("Grabbing focus: %s" % node)
@@ -451,10 +452,10 @@ func _init(tts, node):
     self.node = node
     if is_focusable(node):
         node.set_focus_mode(Control.FOCUS_ALL)
-    node.connect("focus_entered", self, "focused")
-    node.connect("mouse_entered", self, "click_focused")
-    node.connect("focus_exited", self, "unfocused")
-    node.connect("mouse_exited", self, "unfocused")
+    node.connect("focus_entered", self, "focus")
+    node.connect("mouse_entered", self, "click_focus")
+    node.connect("focus_exited", self, "unfocus")
+    node.connect("mouse_exited", self, "unfocus")
     node.connect("gui_input", self, "gui_input")
     if node is CheckBox:
         node.connect("toggled", self, "checkbox_toggled")
