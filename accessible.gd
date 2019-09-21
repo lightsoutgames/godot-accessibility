@@ -334,8 +334,9 @@ func tab_container_focus():
     tts.speak(text, false)
 
 func tab_container_tab_changed(tab):
-    tts.stop()
-    tab_container_focus()
+    if node.has_focus():
+        tts.stop()
+        tab_container_focus()
 
 func tab_container_input(event):
     var new_tab = node.current_tab
