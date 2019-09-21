@@ -174,12 +174,8 @@ func panel_focus():
 func popup_menu_focus():
     tts.speak("menu", false)
 
-func popup_menu_item_id_focus(id):
+func popup_menu_item_id_focus(index):
     var tokens = PoolStringArray([])
-    var index = node.get_item_index(id)
-    print("id: %s, index: %s" % [id, index])
-    if index == -1:
-        index = id
     var item = node.get_item_text(index)
     if item:
         tokens.append(item)
@@ -201,7 +197,7 @@ func popup_menu_item_id_focus(id):
         var text = shortcut.get_as_text()
         if text != "None":
             tokens.append(text)
-    tokens.append(str(id + 1) + " of " + str(node.get_item_count()))
+    tokens.append(str(index + 1) + " of " + str(node.get_item_count()))
     tts.speak(tokens.join(": "), true)
 
 func tree_item_render():
@@ -355,7 +351,6 @@ func tab_container_input(event):
 
 func focus():
     print("Focus: %s" % node)
-    node.get_tree().root.warp_mouse(node.rect_global_position)
     tts.stop()
     var label = guess_label()
     if label:
@@ -400,12 +395,12 @@ func unfocus():
 func click_focus():
     if node.has_focus():
         return
-    # print("Grabbing focus: %s" % node)
-    # node.grab_focus()
-    focus()
+    print("Grabbing focus: %s" % node)
+    node.grab_focus()
 
 func gui_input(event):
     if event is InputEventKey and event.pressed and not event.echo and event.scancode == KEY_MENU:
+        node.get_tree().root.warp_mouse(node.rect_global_position)
         return click(null, BUTTON_RIGHT)
     if node is TabContainer:
         return tab_container_input(event)
