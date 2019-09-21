@@ -400,8 +400,9 @@ func unfocus():
 func click_focus():
     if node.has_focus():
         return
-    print("Grabbing focus: %s" % node)
-    node.grab_focus()
+    # print("Grabbing focus: %s" % node)
+    # node.grab_focus()
+    focus()
 
 func gui_input(event):
     if event is InputEventKey and event.pressed and not event.echo and event.scancode == KEY_MENU:
