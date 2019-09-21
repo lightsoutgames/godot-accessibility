@@ -220,14 +220,10 @@ func tree_item_deselect_all(item: TreeItem):
         item.deselect(i)
 
 func tree_deselect_all_but(target: TreeItem, item: TreeItem):
-    if item != target:
+    var next = item.get_next_visible()
+    while next and next != item:
         tree_item_deselect_all(item)
-    if item.get_children():
-        tree_deselect_all_but(target, item.get_children())
-    var next = item.get_next()
-    while next:
-        tree_deselect_all_but(target, next)
-        next = next.get_next()
+        next = next.get_next_visible()
 
 var prev_selected_cell
 
