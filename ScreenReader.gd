@@ -1,3 +1,4 @@
+tool
 extends Node
 
 var Accessible = preload("Accessible.gd")
