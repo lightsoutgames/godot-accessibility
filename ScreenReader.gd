@@ -1,7 +1,6 @@
-tool
-extends EditorPlugin
+extends Node
 
-var Accessible = preload("accessible.gd")
+var Accessible = preload("Accessible.gd")
 
 var TTS = preload("../godot-tts/TTS.gd")
 
@@ -49,14 +48,3 @@ func set_initial_scene_focus(scene):
 func _enter_tree():
     tts = TTS.new()
     get_tree().connect("node_added", self, "augment_tree")
-    connect("scene_changed", self, "set_initial_scene_focus")
-    connect("main_screen_changed", self, "set_initial_screen_focus")
-
-func _exit_tree():
-    # Clean-up of the plugin goes here
-    pass
-
-func _notification(what):
-    # print("Notified: %s" % what)
-    if what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
-        print("User requested the project to quit")
