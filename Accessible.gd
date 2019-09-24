@@ -494,4 +494,4 @@ func _init(tts, node):
             node.connect("cell_selected", self, "tree_item_selected")
         else:
             node.connect("item_selected", self, "tree_item_selected")
-    node.connect("tree_exiting", self, "free")
+    node.connect("tree_exiting", self, "queue_free")
