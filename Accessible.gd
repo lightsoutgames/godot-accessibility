@@ -14,12 +14,6 @@ func get_siblings():
         return parent.get_children()
     return null
 
-func singular_or_plural(count, singular, plural):
-    if count == 1:
-        return singular
-    else:
-        return plural
-
 func click(item := node, button_index = BUTTON_LEFT):
     var click = InputEventMouseButton.new()
     click.button_index = button_index
@@ -91,7 +85,7 @@ func texturebutton_focus():
 func item_list_focus():
     var count = node.get_item_count()
     var selected = node.get_selected_items()
-    tts.speak("list, %s %s" % [count, singular_or_plural(count, "item", "items")], false)
+    tts.speak("list, %s %s" % [count, tts.singular_or_plural(count, "item", "items")], false)
     tts.speak(selected, false)
 
 func item_list_item_selected(index):
@@ -257,7 +251,7 @@ func tree_item_selected():
                 var button_count = cell.get_button_count(i)
                 if button_count != 0:
                     button_index = 0
-                    tokens.append(str(button_count) + " " + singular_or_plural(button_count, "button", "buttons"))
+                    tokens.append(str(button_count) + " " + tts.singular_or_plural(button_count, "button", "buttons"))
                     if cell.has_method("get_button_tooltip"):
                         var button_tooltip = cell.get_button_tooltip(i, button_index)
                         if button_tooltip:
