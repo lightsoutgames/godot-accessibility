@@ -232,11 +232,10 @@ var button_index
 func tree_item_selected():
     button_index = null
     var cell = node.get_selected()
-    if cell:
-        cell.select(0)
-        if node.select_mode == Tree.SELECT_MULTI:
-            tree_deselect_all_but(cell, node.get_root())
     if cell != prev_selected_cell:
+        if node.select_mode == Tree.SELECT_MULTI:
+            cell.select(0)
+            tree_deselect_all_but(cell, node.get_root())
         tree_item_render()
         prev_selected_cell = cell
     else:
