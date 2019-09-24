@@ -33,11 +33,17 @@ func click(item := node, button_index = BUTTON_LEFT):
     node.get_tree().input_event(click)
 
 func guess_label():
-    var parent = node.get_parent()
-    while parent:
-        if parent is EditorProperty and parent.label:
-            return parent.label
-        parent = parent.get_parent()
+    var tokens = PoolStringArray([])
+    var to_check = node
+    while to_check:
+        if to_check is EditorProperty and to_check.label:
+            tokens.append(to_check.label)
+        if (to_check is EditorProperty or to_check.get_class() == "EditorInspectorCategory") and to_check.get_tooltip_text():
+            tokens.append(to_check.get_tooltip_text())
+        var label = tokens.join(": ")
+        if label:
+            return label
+        to_check = to_check.get_parent()
 
 func close_key_event_dialog():
     node.get_ok().emit_signal("pressed")
@@ -252,12 +258,13 @@ func tree_item_selected():
                 if button_count != 0:
                     button_index = 0
                     tokens.append(str(button_count) + " " + singular_or_plural(button_count, "button", "buttons"))
-                    var button_tooltip = cell.get_button_tooltip(i, button_index)
-                    if button_tooltip:
-                        tokens.append(button_tooltip)
-                        tokens.append("button")
-                    if button_count > 1:
-                        tokens.append("Use Home and End to switch focus.")
+                    if cell.has_method("get_button_tooltip"):
+                        var button_tooltip = cell.get_button_tooltip(i, button_index)
+                        if button_tooltip:
+                            tokens.append(button_tooltip)
+                            tokens.append("button")
+                        if button_count > 1:
+                            tokens.append("Use Home and End to switch focus.")
         tts.speak(tokens.join(": "), true)
 
 func tree_item_multi_select(item, column, selected):
@@ -297,7 +304,7 @@ func tree_input(event):
             new_button_index -= 1
             if new_button_index < 0:
                 new_button_index = item.get_button_count(column) - 1
-        if new_button_index != button_index:
+        if new_button_index != button_index and item.has_method("get_button_tooltip"):
             button_index = new_button_index
             var tokens = PoolStringArray([])
             var tooltip = item.get_button_tooltip(column, button_index)
