@@ -378,6 +378,9 @@ func focus():
 func unfocus():
     print("Unfocused")
     position_in_children = 0
+    yield(node.get_tree().create_timer(1), "timeout")
+    if not node.get_focus_owner():
+        node.get_tree().root.warp_mouse(node.rect_global_position)
 
 func click_focus():
     if node.has_focus():
