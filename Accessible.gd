@@ -39,18 +39,9 @@ func guess_label():
             return label
         to_check = to_check.get_parent()
 
-func close_key_event_dialog():
-    node.get_ok().emit_signal("pressed")
-
-var dialog_close_timer = Timer.new()
-
 func accept_dialog_focus():
-    if not dialog_close_timer.is_connected("timeout", self, "close_key_event_dialog"):
-        dialog_close_timer.connect("timeout", self, "close_key_event_dialog")
-    dialog_close_timer.one_shot = true
-    dialog_close_timer.start(5)
-    if dialog_close_timer.get_parent() == null:
-        node.add_child(dialog_close_timer)
+    yield(node.get_tree().create_timer(5), "timeout")
+    node.get_ok().emit_signal("pressed")
 
 func checkbox_focus():
     var tokens = PoolStringArray([])
