@@ -73,11 +73,23 @@ func button_focus():
 func texturebutton_focus():
     tts.speak("button", false)
 
+func item_list_item_focused(idx):
+    var tokens = PoolStringArray([])
+    var text = node.get_item_text(idx)
+    if text:
+        tokens.append(text)
+    text = node.get_item_tooltip(idx)
+    if text:
+        tokens.append(text)
+    tokens.append("%s of %s" % [idx + 1, node.get_item_count()])
+    tts.speak(tokens.join(": "))
+
 func item_list_focus():
     var count = node.get_item_count()
-    var selected = node.get_selected_items()
+    var selected = node.get_selected_items()[0]
+    position_in_children = selected
     tts.speak("list, %s %s" % [count, tts.singular_or_plural(count, "item", "items")], false)
-    tts.speak(selected, false)
+    item_list_item_focused(selected)
 
 func item_list_item_selected(index):
     tts.speak("Selected", true)
@@ -107,8 +119,9 @@ func item_list_input(event):
         node.accept_event()
         position_in_children = node.get_item_count()-1
     if old_pos != position_in_children:
-        var text = node.get_item_text(position_in_children)
-        tts.speak("%s: %s of %s" % [text, position_in_children+1, node.get_item_count()], false)
+        node.unselect_all()
+        node.select(position_in_children)
+        item_list_item_focused(position_in_children)
 
 func label_focus():
     var text = node.text
