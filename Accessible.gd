@@ -405,6 +405,8 @@ func gui_input(event):
     elif node is LineEdit:
         return check_caret_moved()
     elif node is Tree:
+        if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down") or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
+            node.accept_event()
         return tree_input(event)
     elif node.get_class() == "EditorInspectorSection":
         return editor_inspector_section_input(event)
