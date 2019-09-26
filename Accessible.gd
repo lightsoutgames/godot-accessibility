@@ -150,7 +150,7 @@ func text_inserted(text):
 
 var old_pos
 
-func check_caret_moved():
+func line_edit_input(event):
     var pos = node.caret_position
     if old_pos != null and old_pos != pos:
         var text = node.text
@@ -410,7 +410,7 @@ func gui_input(event):
     elif node is ItemList:
         return item_list_input(event)
     elif node is LineEdit:
-        return check_caret_moved()
+        return line_edit_input(event)
     elif node is Tree:
         if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down") or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
             node.accept_event()
