@@ -386,8 +386,6 @@ func focus():
         print("No handler")
     if node.hint_tooltip and not spoke_hint_tooltip:
         tts.speak(node.hint_tooltip, false)
-    if is_in_group():
-        tts.speak("group", false)
     spoke_hint_tooltip = false
 
 func unfocus():
@@ -427,21 +425,8 @@ func gui_input(event):
         return node.accept_event()
     elif event.is_action_pressed("ui_down"):
         return node.accept_event()
-    elif event is InputEventWithModifiers:
-        if Input.is_action_just_pressed("ui_focus_prev") and event.control and is_in_group():
-            print("Prev")
-            var target = get_siblings()[0]
-            if target:
-                print("Got target")
-                target.grab_focus()
-                target.grab_click_focus()
-        elif Input.is_action_just_pressed("ui_focus_next") and event.control and is_in_group():
-            var target = get_siblings()[-1]
-            if target:
-                target.grab_focus()
-                target.grab_click_focus()
 
-func is_in_group():
+func is_in_bar():
     var parent = node.get_parent()
     if parent and parent is Container:
         for child in parent.get_children():
