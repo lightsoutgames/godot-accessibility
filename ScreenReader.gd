@@ -17,7 +17,7 @@ func augment_tree(node):
         augment_tree(child)
 
 func set_initial_screen_focus(screen):
-    tts.speak(screen, true)
+    tts.speak("%s: screen" % screen, false)
     var control = find_focusable_control(get_tree().root)
     if control.get_focus_owner() != null:
         return
