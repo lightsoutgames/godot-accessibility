@@ -454,6 +454,18 @@ func is_in_bar():
     return false
 
 func is_focusable(node):
+    if node.get_class() == "SceneTreeEditor":
+        return false
+    if node.get_class() == "MultiMeshEditor":
+        return false
+    if node.get_class() == "MeshInstanceEditor":
+        return false
+    if node.get_class() == "SpriteEditor":
+        return false
+    if node.get_class() == "Skeleton2DEditor":
+        return false
+    if node.get_class() == "CollisionShape2DEditor":
+        return false
     if node is TabContainer:
         return true
     if node.get_class() == "EditorInspectorSection":
