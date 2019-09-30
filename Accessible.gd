@@ -286,7 +286,7 @@ func tree_input(event):
             area = node.get_item_area_rect(item, column)
         else:
             area = node.get_item_area_rect(item)
-        var position = Vector2(node.rect_global_position.x + area.position.x, node.rect_global_position.y + area.position.y)
+        var position = Vector2(node.rect_global_position.x + area.position.x + area.size.x / 2, node.rect_global_position.y + area.position.y + area.size.y / 2)
         node.get_tree().root.warp_mouse(position)
     if item and column and button_index != null:
         if event.is_action_pressed("ui_accept"):
