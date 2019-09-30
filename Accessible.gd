@@ -180,20 +180,8 @@ func popup_menu_focus():
     tts.speak("menu", false)
 
 func popup_menu_item_id_focus(index):
+    print("item id focus %s" % index)
     var tokens = PoolStringArray([])
-    var item = node.get_item_text(index)
-    if item:
-        tokens.append(item)
-    var submenu = node.get_item_submenu(index)
-    if submenu:
-        tokens.append(submenu)
-        tokens.append("menu")
-    var tooltip = node.get_item_tooltip(index)
-    if tooltip:
-        tokens.append(tooltip)
-    var disabled = node.is_item_disabled(index)
-    if disabled:
-        tokens.append("disabled")
     var shortcut = node.get_item_shortcut(index)
     if shortcut:
         var name = shortcut.resource_name
@@ -202,8 +190,34 @@ func popup_menu_item_id_focus(index):
         var text = shortcut.get_as_text()
         if text != "None":
             tokens.append(text)
+    var item = node.get_item_text(index)
+    if item:
+        tokens.append(item)
+    var submenu = node.get_item_submenu(index)
+    if submenu:
+        tokens.append(submenu)
+        tokens.append("menu")
+    if node.is_item_checkable(index):
+        if node.is_item_checked(index):
+            tokens.append("checked")
+        else:
+            tokens.append("unchecked")
+    var tooltip = node.get_item_tooltip(index)
+    if tooltip:
+        tokens.append(tooltip)
+    var disabled = node.is_item_disabled(index)
+    if disabled:
+        tokens.append("disabled")
     tokens.append(str(index + 1) + " of " + str(node.get_item_count()))
     tts.speak(tokens.join(": "), true)
+
+func popup_menu_item_id_pressed(index):
+    if node.is_item_checkable(index):
+        if node.is_item_checked(index):
+            tts.speak("checked", true)
+        else:
+            tts.speak("unchecked", true)
+
 
 func tree_item_render():
     var focused_tree_item = node.get_selected()
@@ -403,7 +417,10 @@ func click_focus():
     node.grab_focus()
 
 func gui_input(event):
-    if event is InputEventKey and event.pressed and not event.echo and event.scancode == KEY_MENU:
+    if event is InputEventKey and Input.is_action_just_pressed("ui_accept") and event.control and event.alt:
+        tts.speak("click", false)
+        click()
+    elif event is InputEventKey and event.pressed and not event.echo and event.scancode == KEY_MENU:
         node.get_tree().root.warp_mouse(node.rect_global_position)
         return click(null, BUTTON_RIGHT)
     if node is TabContainer:
@@ -489,6 +506,7 @@ func _init(tts, node):
         # node.connect("text_inserted", self, "text_inserted")
     elif node is PopupMenu:
         node.connect("id_focused", self, "popup_menu_item_id_focus")
+        node.connect("id_pressed", self, "popup_menu_item_id_pressed")
     elif node is TabContainer:
         node.connect("tab_changed", self, "tab_container_tab_changed")
     elif node is Tree:
