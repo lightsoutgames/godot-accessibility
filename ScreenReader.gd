@@ -48,4 +48,5 @@ func set_initial_scene_focus(scene):
 
 func _enter_tree():
     tts = TTS.new()
+    tts.rate = 255
     get_tree().connect("node_added", self, "augment_tree")
