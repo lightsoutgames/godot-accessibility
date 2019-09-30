@@ -53,10 +53,11 @@ func checkbox_focus():
     tts.speak(tokens.join(" "), false)
 
 func checkbox_toggled(checked):
-    if checked:
-        tts.speak("checked", true)
-    else:
-        tts.speak("unchecked", true)
+    if node.has_focus():
+        if checked:
+            tts.speak("checked", true)
+        else:
+            tts.speak("unchecked", true)
 
 var spoke_hint_tooltip
 
