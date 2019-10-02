@@ -6,6 +6,7 @@ var ScreenReader = preload("ScreenReader.gd")
 var screen_reader
 
 func _enter_tree():
+    add_autoload_singleton("TTS", "res://addons/godot-tts/TTS.gd")
     screen_reader = ScreenReader.new()
     get_tree().root.call_deferred("add_child", screen_reader)
     call_deferred("connect", "scene_changed", screen_reader, "set_initial_scene_focus")

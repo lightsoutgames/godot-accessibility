@@ -3,13 +3,9 @@ extends Node
 
 var Accessible = preload("Accessible.gd")
 
-var TTS = preload("../godot-tts/TTS.gd")
-
-var tts
-
 func augment_node(node):
     if node is Control:
-        Accessible.new(tts, node)
+        Accessible.new(node)
 
 func augment_tree(node):
     augment_node(node)
@@ -17,7 +13,7 @@ func augment_tree(node):
         augment_tree(child)
 
 func set_initial_screen_focus(screen):
-    tts.speak("%s: screen" % screen, false)
+    TTS.speak("%s: screen" % screen, false)
     var control = find_focusable_control(get_tree().root)
     if control.get_focus_owner() != null:
         return
@@ -47,6 +43,5 @@ func set_initial_scene_focus(scene):
     focus.grab_focus()
 
 func _enter_tree():
-    tts = TTS.new()
-    tts.rate = 255
+    TTS.rate = 255
     get_tree().connect("node_added", self, "augment_tree")
