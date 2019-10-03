@@ -13,7 +13,8 @@ func click_focused(node):
 
 func restore_focus():
     var focus = find_focusable_control(get_tree().root)
-    if focus:
+    if focus and not focus.get_focus_owner():
+        print("Restoring focus.")
         focus.grab_focus()
         focus.grab_click_focus()
 
