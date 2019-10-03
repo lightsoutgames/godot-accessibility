@@ -141,25 +141,35 @@ func line_edit_focused():
         type = "text"
     TTS.speak("%s: %s" % [text, type], false)
 
-func text_deleted(text):
-    TTS.speak("%s deleted" % text, true)
-
-func text_inserted(text):
-    TTS.speak(text, true)
+var old_text
 
 var old_pos
+
+func line_edit_text_changed(text):
+    if len(text) > len(old_text):
+        for i in range(len(text)):
+            if text.substr(i, 1) != old_text.substr(i, 1):
+                TTS.speak(text.substr(i, 1))
+                return
+    else:
+        for i in range(len(old_text)):
+            if old_text.substr(i, 1) != text.substr(i, 1):
+                TTS.speak(old_text.substr(i, 1))
+                return
 
 func line_edit_input(event):
     var pos = node.caret_position
     if old_pos != null and old_pos != pos:
         var text = node.text
-        if pos > len(text)-1:
-            TTS.speak("blank", true)
-        else:
-            TTS.speak(text[pos], true)
+        if old_text == text:
+            if pos > len(text)-1:
+                TTS.speak("blank", true)
+            else:
+                TTS.speak(text[pos], true)
         old_pos = pos
     elif old_pos == null:
         old_pos = pos
+    old_text = node.text
 
 func menu_button_focused():
     var tokens = PoolStringArray([])
@@ -509,9 +519,8 @@ func _init(node):
         node.connect("item_selected", self, "item_list_item_selected")
         node.connect("multi_selected", self, "item_list_multi_selected")
         node.connect("nothing_selected", self, "item_list_nothing_selected")
-    # elif node is LineEdit:
-        # node.connect("text_deleted", self, "text_deleted")
-        # node.connect("text_inserted", self, "text_inserted")
+    elif node is LineEdit:
+        node.connect("text_changed", self, "line_edit_text_changed")
     elif node is PopupMenu:
         node.connect("id_focused", self, "popup_menu_item_id_focused")
         node.connect("id_pressed", self, "popup_menu_item_id_pressed")
