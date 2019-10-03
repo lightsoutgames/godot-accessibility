@@ -250,7 +250,8 @@ func tree_item_selected():
         if node.select_mode == Tree.SELECT_MULTI:
             cell.select(0)
             tree_deselect_all_but(cell, node.get_root())
-        tree_item_render()
+        if node.has_focus():
+            tree_item_render()
         prev_selected_cell = cell
     else:
         var tokens = PoolStringArray([])
