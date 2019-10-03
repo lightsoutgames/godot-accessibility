@@ -37,11 +37,11 @@ func guess_label():
             return label
         to_check = to_check.get_parent()
 
-func accept_dialog_focus():
+func accept_dialog_focused():
     yield(node.get_tree().create_timer(5), "timeout")
     node.get_ok().emit_signal("pressed")
 
-func checkbox_focus():
+func checkbox_focused():
     var tokens = PoolStringArray([])
     if node.pressed:
         tokens.append("checked")
@@ -59,7 +59,7 @@ func checkbox_toggled(checked):
 
 var spoke_hint_tooltip
 
-func button_focus():
+func button_focused():
     var tokens = PoolStringArray([])
     if node.text:
         tokens.append(node.text)
@@ -69,7 +69,7 @@ func button_focus():
     tokens.append("button")
     TTS.speak(tokens.join(": "), false)
 
-func texturebutton_focus():
+func texturebutton_focused():
     TTS.speak("button", false)
 
 func item_list_item_focused(idx):
@@ -83,7 +83,7 @@ func item_list_item_focused(idx):
     tokens.append("%s of %s" % [idx + 1, node.get_item_count()])
     TTS.speak(tokens.join(": "))
 
-func item_list_focus():
+func item_list_focused():
     var count = node.get_item_count()
     var selected = node.get_selected_items()[0]
     position_in_children = selected
@@ -122,13 +122,13 @@ func item_list_input(event):
         node.select(position_in_children)
         item_list_item_focused(position_in_children)
 
-func label_focus():
+func label_focused():
     var text = node.text
     if text == "":
         text = "blank"
     TTS.speak(text, false)
 
-func line_edit_focus():
+func line_edit_focused():
     var text = "blank"
     if node.secret:
         text = "password"
@@ -161,7 +161,7 @@ func line_edit_input(event):
     elif old_pos == null:
         old_pos = pos
 
-func menu_button_focus():
+func menu_button_focused():
     var tokens = PoolStringArray([])
     if node.text:
         tokens.append(node.text)
@@ -171,10 +171,10 @@ func menu_button_focus():
     tokens.append("menu")
     TTS.speak(tokens.join(": "), false)
 
-func popup_menu_focus():
+func popup_menu_focused():
     TTS.speak("menu", false)
 
-func popup_menu_item_id_focus(index):
+func popup_menu_item_id_focused(index):
     print("item id focus %s" % index)
     var tokens = PoolStringArray([])
     var shortcut = node.get_item_shortcut(index)
@@ -321,20 +321,20 @@ func tree_input(event):
             tokens.append("button")
             TTS.speak(tokens.join(": "), true)
 
-func tree_focus():
+func tree_focused():
     if node.get_selected():
         tree_item_render()
     else:
         TTS.speak("tree", true)
 
-func tree_item_collapse(item):
+func tree_item_collapsed(item):
     if node.has_focus():
         if item.collapsed:
             TTS.speak("collapsed", true)
         else:
             TTS.speak("expanded", true)
 
-func tab_container_focus():
+func tab_container_focused():
     var text = node.get_tab_title(node.current_tab)
     text += ": tab: " + str(node.current_tab + 1) + " of " + str(node.get_tab_count())
     TTS.speak(text, false)
@@ -342,7 +342,7 @@ func tab_container_focus():
 func tab_container_tab_changed(tab):
     if node.has_focus():
         TTS.stop()
-        tab_container_focus()
+        tab_container_focused()
 
 func tab_container_input(event):
     var new_tab = node.current_tab
@@ -359,36 +359,36 @@ func tab_container_input(event):
     if node.current_tab != new_tab:
         node.current_tab = new_tab
 
-func focus():
+func focused():
     print("Focus: %s" % node)
     TTS.stop()
     var label = guess_label()
     if label:
         TTS.speak(label, false)
     if node is MenuButton:
-        menu_button_focus()
+        menu_button_focused()
     elif node is AcceptDialog:
-        accept_dialog_focus()
+        accept_dialog_focused()
     elif node is CheckBox:
-        checkbox_focus()
+        checkbox_focused()
     elif node is Button:
-        button_focus()
+        button_focused()
     elif node.get_class() == "EditorInspectorSection":
-        editor_inspector_section_focus()
+        editor_inspector_section_focused()
     elif node is ItemList:
-        item_list_focus()
+        item_list_focused()
     elif node is Label:
-        label_focus()
+        label_focused()
     elif node is LineEdit:
-        line_edit_focus()
+        line_edit_focused()
     elif node is PopupMenu:
-        popup_menu_focus()
+        popup_menu_focused()
     elif node is TabContainer:
-        tab_container_focus()
+        tab_container_focused()
     elif node is TextureButton:
-        texturebutton_focus()
+        texturebutton_focused()
     elif node is Tree:
-        tree_focus()
+        tree_focused()
     else:
         TTS.speak(node.get_class(), true)
         print("No handler")
@@ -396,14 +396,14 @@ func focus():
         TTS.speak(node.hint_tooltip, false)
     spoke_hint_tooltip = false
 
-func unfocus():
+func unfocused():
     print("Unfocused")
     position_in_children = 0
     yield(node.get_tree().create_timer(1), "timeout")
     if not node.get_focus_owner():
         node.get_tree().root.warp_mouse(node.rect_global_position)
 
-func click_focus():
+func click_focused():
     if node.has_focus():
         return
     if node.focus_mode == Control.FOCUS_ALL:
@@ -470,7 +470,7 @@ func is_focusable(node):
         return false
     return true
 
-func editor_inspector_section_focus():
+func editor_inspector_section_focused():
     var child = node.get_children()[0]
     var expanded = child.is_visible_in_tree()
     var tokens = PoolStringArray(["editor inspector section"])
@@ -497,10 +497,10 @@ func _init(node):
     self.node = node
     if is_focusable(node):
         node.set_focus_mode(Control.FOCUS_ALL)
-    node.connect("focus_entered", self, "focus")
-    node.connect("mouse_entered", self, "click_focus")
-    node.connect("focus_exited", self, "unfocus")
-    node.connect("mouse_exited", self, "unfocus")
+    node.connect("focus_entered", self, "focused")
+    node.connect("mouse_entered", self, "click_focused")
+    node.connect("focus_exited", self, "unfocused")
+    node.connect("mouse_exited", self, "unfocused")
     node.connect("gui_input", self, "gui_input")
     if node is CheckBox:
         node.connect("toggled", self, "checkbox_toggled")
@@ -512,13 +512,13 @@ func _init(node):
         # node.connect("text_deleted", self, "text_deleted")
         # node.connect("text_inserted", self, "text_inserted")
     elif node is PopupMenu:
-        node.connect("id_focused", self, "popup_menu_item_id_focus")
+        node.connect("id_focused", self, "popup_menu_item_id_focused")
         node.connect("id_pressed", self, "popup_menu_item_id_pressed")
     elif node is TabContainer:
         node.connect("tab_changed", self, "tab_container_tab_changed")
     elif node is Tree:
-        node.connect("item_collapsed", self, "tree_item_collapse")
-        node.connect("multi_selected", self, "tree_item_multi_select")
+        node.connect("item_collapsed", self, "tree_item_collapsed")
+        node.connect("multi_selected", self, "tree_item_multi_selected")
         if node.select_mode == Tree.SELECT_MULTI:
             node.connect("cell_selected", self, "tree_item_selected")
         else:
