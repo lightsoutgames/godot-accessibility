@@ -3,9 +3,34 @@ extends Node
 
 var Accessible = preload("Accessible.gd")
 
+var focus_restore_timer = Timer.new()
+
+func focused(node):
+    focus_restore_timer.stop()
+
+func click_focused(node):
+    pass
+
+func restore_focus():
+    var focus = find_focusable_control(get_tree().root)
+    if focus:
+        focus.grab_focus()
+        focus.grab_click_focus()
+
+func unfocused(node):
+    focus_restore_timer.start(0.2)
+
 func augment_node(node):
     if node is Control:
         Accessible.new(node)
+        if not node.is_connected("focus_entered", self, "focused"):
+            node.connect("focus_entered", self, "focused", [node])
+        if not node.is_connected("mouse_entered", self, "click_focused"):
+            node.connect("mouse_entered", self, "click_focused", [node])
+        if not node.is_connected("focus_exited", self, "unfocused"):
+            node.connect("focus_exited", self, "unfocused", [node])
+        if not node.is_connected("mouse_exited", self, "unfocused"):
+            node.connect("mouse_exited", self, "unfocused", [node])
 
 func augment_tree(node):
     augment_node(node)
@@ -34,7 +59,6 @@ func find_focusable_control(node):
     return null
 
 func set_initial_scene_focus(scene):
-    print("Set focus in scene")
     self.augment_tree(get_tree().root)
     var focus = find_focusable_control(get_tree().root)
     if not focus:
@@ -43,5 +67,8 @@ func set_initial_scene_focus(scene):
     focus.grab_focus()
 
 func _enter_tree():
+    focus_restore_timer.one_shot = true
+    focus_restore_timer.connect("timeout", self, "restore_focus")
+    add_child(focus_restore_timer)
     TTS.rate = 255
     get_tree().connect("node_added", self, "augment_tree")

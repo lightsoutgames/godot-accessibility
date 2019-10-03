@@ -171,9 +171,6 @@ func menu_button_focus():
     tokens.append("menu")
     TTS.speak(tokens.join(": "), false)
 
-func panel_focus():
-    TTS.speak("panel", true)
-
 func popup_menu_focus():
     TTS.speak("menu", false)
 
@@ -384,8 +381,6 @@ func focus():
         label_focus()
     elif node is LineEdit:
         line_edit_focus()
-    elif node is Panel:
-        panel_focus()
     elif node is PopupMenu:
         popup_menu_focus()
     elif node is TabContainer:
@@ -411,8 +406,9 @@ func unfocus():
 func click_focus():
     if node.has_focus():
         return
-    print("Grabbing focus: %s" % node)
-    node.grab_focus()
+    if node.focus_mode == Control.FOCUS_ALL:
+        print("Grabbing focus: %s" % node)
+        node.grab_focus()
 
 func gui_input(event):
     if event is InputEventKey and Input.is_action_just_pressed("ui_accept") and event.control and event.alt:
@@ -463,6 +459,8 @@ func is_focusable(node):
     if node.get_class() == "Skeleton2DEditor":
         return false
     if node.get_class() == "CollisionShape2DEditor":
+        return false
+    if node is Panel:
         return false
     if node is TabContainer:
         return true
