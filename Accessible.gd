@@ -70,6 +70,12 @@ func button_focused():
     TTS.speak(tokens.join(": "), false)
 
 func texturebutton_focused():
+    var texture = node.texture_normal
+    print(texture.resource_name)
+    print(texture.resource_path)
+    var rid = texture.get_rid()
+    print(rid)
+    print(rid.get_id())
     TTS.speak("button", false)
 
 func item_list_item_focused(idx):
@@ -345,6 +351,23 @@ func tree_item_collapsed(item):
         else:
             TTS.speak("expanded", true)
 
+func progress_bar_focused():
+    var percentage = int(node.ratio * 100)
+    TTS.speak("%s percent" % percentage, false)
+    TTS.speak("progress bar", false)
+
+var last_percentage_spoken
+
+var last_percentage_spoken_at = 0
+
+func progress_bar_value_changed(value):
+    var percentage = node.value / (node.max_value - node.min_value) * 100
+    percentage = int(percentage)
+    if percentage != last_percentage_spoken and OS.get_ticks_msec() - last_percentage_spoken_at >= 10000:
+        TTS.speak("%s percent" % percentage)
+        last_percentage_spoken_at = OS.get_ticks_msec()
+        last_percentage_spoken = percentage
+
 func tab_container_focused():
     var text = node.get_tab_title(node.current_tab)
     text += ": tab: " + str(node.current_tab + 1) + " of " + str(node.get_tab_count())
@@ -392,8 +415,12 @@ func focused():
         label_focused()
     elif node is LineEdit:
         line_edit_focused()
+    elif node is LinkButton:
+        button_focused()
     elif node is PopupMenu:
         popup_menu_focused()
+    elif node is ProgressBar:
+        progress_bar_focused()
     elif node is TabContainer:
         tab_container_focused()
     elif node is TextureButton:
@@ -524,6 +551,8 @@ func _init(node):
     elif node is PopupMenu:
         node.connect("id_focused", self, "popup_menu_item_id_focused")
         node.connect("id_pressed", self, "popup_menu_item_id_pressed")
+    elif node is ProgressBar:
+        node.connect("value_changed", self, "progress_bar_value_changed")
     elif node is TabContainer:
         node.connect("tab_changed", self, "tab_container_tab_changed")
     elif node is Tree:
