@@ -106,6 +106,9 @@ func item_list_nothing_selected():
     TTS.speak("Nothing selected", true)
 
 func item_list_input(event):
+    if event.is_action_pressed("ui_right") or event.is_action_pressed("ui_left"):
+        return node.accept_event()
+    var old_count = node.get_item_count()
     var old_pos = position_in_children
     if event.is_action_pressed("ui_up"):
         node.accept_event()
@@ -124,6 +127,8 @@ func item_list_input(event):
         node.accept_event()
         position_in_children = node.get_item_count()-1
     if old_pos != position_in_children:
+        if position_in_children >= node.get_item_count():
+            position_in_children = 0
         node.unselect_all()
         node.select(position_in_children)
         item_list_item_focused(position_in_children)
