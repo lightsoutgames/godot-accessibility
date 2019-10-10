@@ -71,5 +71,5 @@ func _enter_tree():
     focus_restore_timer.one_shot = true
     focus_restore_timer.connect("timeout", self, "restore_focus")
     add_child(focus_restore_timer)
-    TTS.rate = 255
+    TTS.rate = 100
     get_tree().connect("node_added", self, "augment_tree")
