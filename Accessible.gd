@@ -28,9 +28,9 @@ func guess_label():
     var tokens = PoolStringArray([])
     var to_check = node
     while to_check:
-        if to_check is EditorProperty and to_check.label:
+        if to_check.get_class() == "EditorProperty" and to_check.label:
             tokens.append(to_check.label)
-        if (to_check is EditorProperty or to_check.get_class() == "EditorInspectorCategory") and to_check.get_tooltip_text():
+        if (to_check.get_class() == "EditorProperty" or to_check.get_class() == "EditorInspectorCategory") and to_check.get_tooltip_text():
             tokens.append(to_check.get_tooltip_text())
         var label = tokens.join(": ")
         if label:
@@ -91,13 +91,21 @@ func item_list_item_focused(idx):
 
 func item_list_focused():
     var count = node.get_item_count()
-    var selected = node.get_selected_items()[0]
+    var selected = node.get_selected_items()
+    print(selected)
+    if len(selected) == 0:
+        if node.get_item_count() == 0:
+            return TTS.speak("list, 0 items", false)
+        selected = 0
+        node.select(selected)
+        node.emit_signal("item_list_item_selected", selected)
+    else:
+        selected = selected[0]
     position_in_children = selected
-    TTS.speak("list, %s %s" % [count, TTS.singular_or_plural(count, "item", "items")], false)
     item_list_item_focused(selected)
 
 func item_list_item_selected(index):
-    TTS.speak("Selected", true)
+    item_list_item_focused(index)
 
 func item_list_multi_selected(index, selected):
     TTS.speak("Multiselect", false)
@@ -131,6 +139,7 @@ func item_list_input(event):
             position_in_children = 0
         node.unselect_all()
         node.select(position_in_children)
+        node.emit_signal("item_list_item_selected", position_in_children)
         item_list_item_focused(position_in_children)
 
 func label_focused():
