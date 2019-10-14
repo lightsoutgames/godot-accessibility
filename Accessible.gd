@@ -28,9 +28,9 @@ func guess_label():
     var tokens = PoolStringArray([])
     var to_check = node
     while to_check:
-        if to_check.get_class() == "EditorProperty" and to_check.label:
+        if to_check.is_class("EditorProperty") and to_check.label:
             tokens.append(to_check.label)
-        if (to_check.get_class() == "EditorProperty" or to_check.get_class() == "EditorInspectorCategory") and to_check.get_tooltip_text():
+        if (to_check.is_class("EditorProperty") or to_check.is_class("EditorInspectorCategory")) and to_check.get_tooltip_text():
             tokens.append(to_check.get_tooltip_text())
         var label = tokens.join(": ")
         if label:
@@ -421,7 +421,7 @@ func focused():
         checkbox_focused()
     elif node is Button:
         button_focused()
-    elif node.get_class() == "EditorInspectorSection":
+    elif node.is_class("EditorInspectorSection"):
         editor_inspector_section_focused()
     elif node is ItemList:
         item_list_focused()
@@ -479,7 +479,7 @@ func gui_input(event):
         if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down") or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
             node.accept_event()
         return tree_input(event)
-    elif node.get_class() == "EditorInspectorSection":
+    elif node.is_class("EditorInspectorSection"):
         return editor_inspector_section_input(event)
     elif event.is_action_pressed("ui_left"):
         return node.accept_event()
@@ -500,23 +500,23 @@ func is_in_bar():
     return false
 
 func is_focusable(node):
-    if node.get_class() == "SceneTreeEditor":
+    if node.is_class("SceneTreeEditor"):
         return false
-    if node.get_class() == "MultiMeshEditor":
+    if node.is_class("MultiMeshEditor"):
         return false
-    if node.get_class() == "MeshInstanceEditor":
+    if node.is_class("MeshInstanceEditor"):
         return false
-    if node.get_class() == "SpriteEditor":
+    if node.is_class("SpriteEditor"):
         return false
-    if node.get_class() == "Skeleton2DEditor":
+    if node.is_class("Skeleton2DEditor"):
         return false
-    if node.get_class() == "CollisionShape2DEditor":
+    if node.is_class("CollisionShape2DEditor"):
         return false
     if node is Panel:
         return false
     if node is TabContainer:
         return true
-    if node.get_class() == "EditorInspectorSection":
+    if node.is_class("EditorInspectorSection"):
         return true
     if node is Container or node is Separator or node is ScrollBar or node is Popup or node.get_class() == "Control":
         return false
