@@ -307,7 +307,7 @@ func tree_item_selected():
                             tokens.append("Use Home and End to switch focus.")
         TTS.speak(tokens.join(": "), true)
 
-func tree_item_multi_select(item, column, selected):
+func tree_item_multi_selected(item, column, selected):
     if selected:
         TTS.speak("selected", true)
     else:
