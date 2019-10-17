@@ -263,11 +263,12 @@ func tree_item_deselect_all(item: TreeItem):
     for i in range(node.columns):
         item.deselect(i)
 
-func tree_deselect_all_but(target: TreeItem, item: TreeItem):
-    var next = item.get_next_visible()
-    while next and next != item:
-        tree_item_deselect_all(item)
-        next = next.get_next_visible()
+func tree_deselect_all_but(target: TreeItem, tree: Tree):
+    var cur = tree.get_root()
+    while cur != null:
+        if cur != target:
+            tree_item_deselect_all(cur)
+        cur = tree.get_next_selected(cur)
 
 var prev_selected_cell
 
@@ -279,7 +280,7 @@ func tree_item_selected():
     if cell != prev_selected_cell:
         if node.select_mode == Tree.SELECT_MULTI:
             cell.select(0)
-            tree_deselect_all_but(cell, node.get_root())
+            tree_deselect_all_but(cell, node)
         if node.has_focus():
             tree_item_render()
         prev_selected_cell = cell
