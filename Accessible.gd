@@ -243,6 +243,20 @@ func popup_menu_item_id_pressed(index):
         else:
             TTS.speak("unchecked", true)
 
+func text_edit_focus():
+    var tokens = PoolStringArray([])
+    if node.text:
+        tokens.append(node.text)
+    else:
+        tokens.append("blank")
+    if node.readonly:
+        tokens.append("read-only edit text")
+    else:
+        tokens.append("edit text")
+    TTS.speak(tokens.join(": "), false)
+
+func text_edit_input(event):
+    pass
 
 func tree_item_render():
     var focused_tree_item = node.get_selected()
@@ -438,6 +452,8 @@ func focused():
         progress_bar_focused()
     elif node is TabContainer:
         tab_container_focused()
+    elif node is TextEdit:
+        text_edit_focus()
     elif node is TextureButton:
         texturebutton_focused()
     elif node is Tree:
@@ -476,6 +492,8 @@ func gui_input(event):
         return item_list_input(event)
     elif node is LineEdit:
         return line_edit_input(event)
+    elif node is TextEdit:
+        return text_edit_input(event)
     elif node is Tree:
         if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down") or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
             node.accept_event()
