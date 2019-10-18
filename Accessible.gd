@@ -259,7 +259,8 @@ func range_focused():
     TTS.speak(tokens.join(": "), false)
 
 func range_value_changed(value):
-    TTS.speak("%s" % value, true)
+    if node.has_focus():
+        TTS.speak("%s" % value, true)
 
 func text_edit_focus():
     var tokens = PoolStringArray([])
