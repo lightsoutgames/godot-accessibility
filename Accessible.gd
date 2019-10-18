@@ -243,6 +243,24 @@ func popup_menu_item_id_pressed(index):
         else:
             TTS.speak("unchecked", true)
 
+func range_focused():
+    var tokens = PoolStringArray([])
+    tokens.append(str(node.value))
+    if node is HSlider:
+        tokens.append("horizontal slider")
+    elif node is VSlider:
+        tokens.append("vertical slider")
+    elif node is SpinBox:
+        tokens.append("spin box")
+    else:
+        tokens.append("range")
+    tokens.append("minimum %s" % node.min_value)
+    tokens.append("maximum %s" % node.max_value)
+    TTS.speak(tokens.join(": "), false)
+
+func range_value_changed(value):
+    TTS.speak("%s" % value, true)
+
 func text_edit_focus():
     var tokens = PoolStringArray([])
     if node.text:
@@ -450,6 +468,8 @@ func focused():
         popup_menu_focused()
     elif node is ProgressBar:
         progress_bar_focused()
+    elif node is Range:
+        range_focused()
     elif node is TabContainer:
         tab_container_focused()
     elif node is TextEdit:
@@ -584,6 +604,8 @@ func _init(node):
     elif node is PopupMenu:
         node.connect("id_focused", self, "popup_menu_item_id_focused")
         node.connect("id_pressed", self, "popup_menu_item_id_pressed")
+    elif node is Range:
+        node.connect("value_changed", self, "range_value_changed")
     elif node is ProgressBar:
         node.connect("value_changed", self, "progress_bar_value_changed")
     elif node is TabContainer:
