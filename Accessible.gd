@@ -605,10 +605,10 @@ func _init(node):
     elif node is PopupMenu:
         node.connect("id_focused", self, "popup_menu_item_id_focused")
         node.connect("id_pressed", self, "popup_menu_item_id_pressed")
-    elif node is Range:
-        node.connect("value_changed", self, "range_value_changed")
     elif node is ProgressBar:
         node.connect("value_changed", self, "progress_bar_value_changed")
+    elif node is Range:
+        node.connect("value_changed", self, "range_value_changed")
     elif node is TabContainer:
         node.connect("tab_changed", self, "tab_container_tab_changed")
     elif node is Tree:
