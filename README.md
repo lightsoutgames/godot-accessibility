@@ -4,19 +4,21 @@ _Warning: Still in early development. Only use if you're willing and able to rol
 
 This plugin implements a screen reader for user interfaces created with the [Godot game engine](https://godotengine.org). The goal is to enable the creation of [audio games](https://en.wikipedia.org/wiki/Audio_game) with Godot, as well as to add accessibility functionality to user interfaces and to encourage the creation of accessible games.
 
+For best results, please use [Godot 3.2 Beta 4](https://downloads.tuxfamily.org/godotengine/3.2/beta4/) at minimum. 3.2 has minor accessibility fixes needed to get the most out of this addon.
+
 ## Why?
 
-As a blind gamer and software developer, I've long had an interest in developing games. But while I can assemble and integrate bunches of individual libraries to achieve the functionality I need, game engines already ship battle-tested components for almost every feature I could possibly want. Accessibility is a glaring exception.
+As a blind gamer and software developer, I've long had an interest in developing games. But while I can assemble and integrate bunches of individual libraries to achieve the functionality I need, game engines already ship battle-tested components for almost every feature I could possibly want, all of which are well-integrated and nicely documented. Accessibility is a glaring exception.
 
-If so many developers are flocking to engines like Unity, it must be that they derive some advantage from the platform. But because the Unity development environment isn't accessible, I as a blind developer have no way of knowing whether that style of development would work for me. This addon is my way of exploring those possibilities.
+If so many developers are flocking to engines like Unity, it must be that they derive some advantage from the platform. But because the Unity development environment isn't accessible, I as a blind developer have no way of knowing whether that style of development would work for me. This addon is my way of exploring those possibilities and, with any luck, of making compelling games of my own.
 
-Anecdotally, I've learned that building games with Godot is not only possible, but is becoming very fast as I refine my workflow. My process probably looks nothing like that of most other Godot users. I use the editor to set up scenes, edit properties, etc. Then I drop to a shell prompt, edit the _.tscn_ files by hand, then run the game from the shell. The editor is more of an exploratory interface for the work I mostly do by hand. But even though this approach is a bit more obtuse than just picking a scripting language, what I get from Godot is a set of components that can perform just about any game-related task I need. I also can export games to just about any platform--Windows, Linux, MacOS, Android, iOS, and UWP for the Xbox One.
+Anecdotally, I've learned that building games with Godot is not only possible, but is becoming very fast as I refine my workflow. My process probably looks nothing like that of most other Godot users. I use the editor to set up scenes, edit properties, etc. Then I drop to a shell prompt, edit the _.tscn_ files by hand, then run the game from the shell. The editor is more of an exploratory interface for the work I mostly do by hand, and has been invaluable at helping me discover property and signal values without pouring through pages of documentation for multiple classes. But even though this approach is a bit more obtuse than just picking a scripting language, what I get from Godot is a set of components that can perform just about any game-related task I need. I also can export games to just about any platform--Windows, Linux, MacOS, Android, iOS, and UWP for the Xbox One.
 
 ## Installation
 
 There is an [accessible starter project](https://gitlab.com/lightsoutgames/godot-accessible-starter) that does most of this for you, and sets up a basic project with an in-game screen reader and editor accessibility. But here are the steps from an empty Godot project:
 
-1. Place this repository in a directory named _addons/godot-accessibility_ inside your project. This plugins files should be reachable at the Godot path _res://addons/godot-accessibility_.
+1. Place this repository in a directory named _addons/godot-accessibility_ inside your project. This plugins root directory should be reachable at the Godot path _res://addons/godot-accessibility_.
 2. Download the [latest release of the Godot TTS plugin](https://gitlab.com/lightsoutgames/godot-tts/-/jobs/artifacts/master/download?job=publish) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
 3. Enable the Godot Accessibility plugin from the editor UI. Or, if you have a _project.godot_ file, ensure that you have a section like:
 ```
@@ -31,6 +33,7 @@ editor_accessibility__enabled = true ; Set to false if you'd like this plugin's 
 [speech]
 rate = 50 ; range is 0 to 100.
 ```
+This file shouldn't be checked into version control, so add it to your ignore patterns.
 5. Launch your project by running `godot -e` in the top-level directory.
 
 ## What is provided?
@@ -39,7 +42,7 @@ rate = 50 ; range is 0 to 100.
 
 Add the `ScreenReader` node to any `SceneTree` to make any UI accessible. Many of the most common UI controls are supported.
 
-`ScreenReader` also customizes keyboard handling to account for the fact that Godot's is lacking by default. It attempts to set an initial focus whenever a new scene is initialized.
+`ScreenReader` also customizes keyboard handling to account for the fact that Godot's is somewhat lacking. It attempts to set an initial focus whenever a new scene is initialized so keyboard focus works more often than not.
 
 ### Editor accessibility
 
@@ -49,13 +52,11 @@ Since the Godot editor is itself a Godot UI, the plugin optionally injects a `Sc
 
 Here are some issues that I know about now, along with recommended workarounds where possible:
 
-### Shift-tab doesn't work in the latest Godot beta.
-
-Stick with 3.1.2 for now. This is fixed, but not available in a beta build yet.
-
-### Sometimes Tab and Shift-tab stop working.
+### Tab and Shift-tab stop working.
 
 If focus ever lands outside of a UI widget, Tab and Shift-tab will stop working because there is no focused control for which to find a new focus candidate. I have some defensive code in place to recover from this sometimes, but it still happens on occasion. Save often.
+
+This often happens if I run a game from within the editor, then exit the game. Focus seems to land somewhere outside of a control and can't be restored, and my defensive code doesn't kick in.
 
 ### File navigation is confusing.
 
@@ -75,6 +76,26 @@ The Player scene should now be loaded, and tabbing bunches of times should land 
 I know. This interface was designed for mouse users. I can probably add a hotkey for jumping between major UI elements, but as a blind developer, I don't know the boundaries of these major UI areas. Help with this would be greatly appreciated.
 
 One promising area of exploration is Godot 3.2's ability to disable editor features. Audio-only games might get away with disabling 3-D and other views, thus at least minimizing tab fatigue. But that feature crashed when I last attempted it (3.2 alphas) and I haven't tried again.
+
+### How do I bind an action to a key?
+
+This is a fun one. First, the controls to do this need to be accessed in a non-standard way. Then, you've got a non-discoverable dialog. But here's the process:
+
+1. From the top menu, click Project.
+2. In the submenu, click Project Settings.
+3. Tab until you reach the tab list.
+4. Arrow right to Input Map.
+5. Here you can either create a new bindable action by typing a name into the text field, or tab to the tree and select an existing action to bind a new key/controller to.
+6. When in the tree, you'll need to access controls for the individual items. Godot is a bit odd in how it associates controls with tree items. Sometimes they're context menus. Others, as here, they're a horizontal row of buttons in one of the tree row cells. To access these, select an action, arrow right twice, and use Home/End to switch between individual buttons on each row.
+7. If you select the option to add a key to an action, focus lands in a dialog. You won't get any speech for this. I think you're supposed to do this by pressing the desired key, then clickling a Close button. Naturally, for us this would bind everything to _Space_ or _enter_. Instead, the addon closes the dialog automatically after five seconds, so press your desired key or combination and wait. Pressing a second key or combination clears the first, so if you make a mistake, just press the correct key combination. You won't get speech feedback until the dialog closes.
+
+A better workflow for this is welcome, but it took so long to figure out how to *reach* this dialog that, when I finally did, I was just damned happy to get *anything* working. :)
+
+Note that _right-arrow_ only navigates between cells in a row for expanded tree items. Fortunately, I think most rows with controls are fully-expanded anyway, and others use more traditional context menus.
+
+### How do I right-click?
+
+There's no keyboard-equivalent for this, but fortunately the addon has your back. Use the _Application_ key as you normally would. Note that this key performs a right-click. I can't guarantee that will always open a context menu, but it does just that for the scene tree and other nodes with documented context menus.
 
 ### Some controls don't work.
 
