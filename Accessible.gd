@@ -13,6 +13,7 @@ func get_siblings():
     return null
 
 func click(item := node, button_index = BUTTON_LEFT):
+    print("Click")
     var click = InputEventMouseButton.new()
     click.button_index = button_index
     click.pressed = true
@@ -71,11 +72,11 @@ func button_focused():
 
 func texturebutton_focused():
     var texture = node.texture_normal
-    print(texture.resource_name)
-    print(texture.resource_path)
+    print_debug(texture.resource_name)
+    print_debug(texture.resource_path)
     var rid = texture.get_rid()
-    print(rid)
-    print(rid.get_id())
+    print_debug(rid)
+    print_debug(rid.get_id())
     TTS.speak("button", false)
 
 func item_list_item_focused(idx):
@@ -92,7 +93,7 @@ func item_list_item_focused(idx):
 func item_list_focused():
     var count = node.get_item_count()
     var selected = node.get_selected_items()
-    print(selected)
+    print_debug(selected)
     if len(selected) == 0:
         if node.get_item_count() == 0:
             return TTS.speak("list, 0 items", false)
@@ -166,6 +167,8 @@ var old_text
 var old_pos
 
 func line_edit_text_changed(text):
+    if not text or not old_text:
+        return
     if len(text) > len(old_text):
         for i in range(len(text)):
             if text.substr(i, 1) != old_text.substr(i, 1):
@@ -205,7 +208,7 @@ func popup_menu_focused():
     TTS.speak("menu", false)
 
 func popup_menu_item_id_focused(index):
-    print("item id focus %s" % index)
+    print_debug("item id focus %s" % index)
     var tokens = PoolStringArray([])
     var shortcut = node.get_item_shortcut(index)
     if shortcut:
@@ -442,7 +445,7 @@ func tab_container_input(event):
         node.current_tab = new_tab
 
 func focused():
-    print("Focus: %s" % node)
+    print_debug("Focus: %s" % node)
     TTS.stop()
     var label = guess_label()
     if label:
@@ -481,13 +484,13 @@ func focused():
         tree_focused()
     else:
         TTS.speak(node.get_class(), true)
-        print("No handler")
+        print_debug("No handler")
     if node.hint_tooltip and not spoke_hint_tooltip:
         TTS.speak(node.hint_tooltip, false)
     spoke_hint_tooltip = false
 
 func unfocused():
-    print("Unfocused")
+    print_debug("Unfocused")
     position_in_children = 0
     yield(node.get_tree().create_timer(1), "timeout")
     if not node.get_focus_owner():
@@ -497,7 +500,7 @@ func click_focused():
     if node.has_focus():
         return
     if node.focus_mode == Control.FOCUS_ALL:
-        print("Grabbing focus: %s" % node)
+        print_debug("Grabbing focus: %s" % node)
         node.grab_focus()
 
 func gui_input(event):
