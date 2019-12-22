@@ -618,4 +618,4 @@ func _init(node):
             node.connect("cell_selected", self, "tree_item_selected")
         else:
             node.connect("item_selected", self, "tree_item_selected")
-    node.connect("tree_exiting", self, "free")
+    node.connect("tree_exiting", self, "free", [], Object.CONNECT_DEFERRED)
