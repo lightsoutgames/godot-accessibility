@@ -78,4 +78,7 @@ func _enter_tree():
 
 func _exit_tree():
     for accessible in accessibles:
+        if accessible.timer != null:
+            accessible.timer.unreference()
+            accessible.timer = null
         accessible.free()

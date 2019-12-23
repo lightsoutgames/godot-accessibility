@@ -489,12 +489,17 @@ func focused():
         TTS.speak(node.hint_tooltip, false)
     spoke_hint_tooltip = false
 
+var timer
+
 func unfocused():
     print_debug("Unfocused")
     position_in_children = 0
-    yield(node.get_tree().create_timer(1), "timeout")
+    timer = node.get_tree().create_timer(1)
+    yield(timer, "timeout")
     if not node.get_focus_owner():
         node.get_tree().root.warp_mouse(node.rect_global_position)
+    timer.unreference()
+    timer = null
 
 func click_focused():
     if node.has_focus():
