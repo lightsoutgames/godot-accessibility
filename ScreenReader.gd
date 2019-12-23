@@ -23,7 +23,8 @@ func unfocused(node):
 
 func augment_node(node):
     if node is Control:
-        Accessible.new(node)
+        var accessible = Accessible.new(node)
+        add_child(accessible)
         if not node.is_connected("focus_entered", self, "focused"):
             node.connect("focus_entered", self, "focused", [node])
         if not node.is_connected("mouse_entered", self, "click_focused"):
