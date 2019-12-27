@@ -3,8 +3,6 @@ extends Node
 
 var Accessible = preload("Accessible.gd")
 
-var accessibles = []
-
 var focus_restore_timer = Timer.new()
 
 func focused(node):
@@ -26,7 +24,7 @@ func unfocused(node):
 func augment_node(node):
     if node is Control:
         var accessible = Accessible.new(node)
-        accessibles.append(accessible)
+        add_child(accessible)
         if not node.is_connected("focus_entered", self, "focused"):
             node.connect("focus_entered", self, "focused", [node])
         if not node.is_connected("mouse_entered", self, "click_focused"):
@@ -37,6 +35,8 @@ func augment_node(node):
             node.connect("mouse_exited", self, "unfocused", [node])
 
 func augment_tree(node):
+    if node is Accessible:
+        return
     augment_node(node)
     for child in node.get_children():
         augment_tree(child)
@@ -75,10 +75,3 @@ func _enter_tree():
     focus_restore_timer.connect("timeout", self, "restore_focus")
     add_child(focus_restore_timer)
     get_tree().connect("node_added", self, "augment_tree")
-
-func _exit_tree():
-    for accessible in accessibles:
-        if accessible.timer != null:
-            accessible.timer.unreference()
-            accessible.timer = null
-        accessible.free()
