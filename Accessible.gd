@@ -494,11 +494,11 @@ var timer
 func unfocused():
     print_debug("Unfocused")
     position_in_children = 0
-    timer = node.get_tree().create_timer(1)
-    yield(timer, "timeout")
+    timer = weakref(node.get_tree().create_timer(1))
+    yield(timer.get_ref(), "timeout")
     if not node.get_focus_owner():
         node.get_tree().root.warp_mouse(node.rect_global_position)
-    timer.unreference()
+    timer.get_ref().unreference()
 
 func click_focused():
     if node.has_focus():
@@ -628,5 +628,5 @@ func _init(node):
     node.connect("tree_exiting", self, "queue_free", [], Object.CONNECT_DEFERRED)
 
 func _exit_tree():
-    if timer != null:
-        timer.unreference()
+    if timer != null and timer.get_ref():
+        timer.get_ref().unreference()
