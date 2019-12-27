@@ -3,23 +3,16 @@ extends Node
 
 var Accessible = preload("Accessible.gd")
 
-var focus_restore_timer = Timer.new()
+var focus_restore_timer
 
 func focused(node):
-    focus_restore_timer.stop()
+    focus_restore_timer = null
 
 func click_focused(node):
     pass
 
-func restore_focus():
-    var focus = find_focusable_control(get_tree().root)
-    if focus and not focus.get_focus_owner():
-        print("Restoring focus.")
-        focus.grab_focus()
-        focus.grab_click_focus()
-
 func unfocused(node):
-    focus_restore_timer.start(0.2)
+    focus_restore_timer = get_tree().create_timer(0.2)
 
 func augment_node(node):
     if node is Control:
@@ -71,11 +64,16 @@ func set_initial_scene_focus(scene):
     focus.grab_focus()
 
 func _enter_tree():
-    focus_restore_timer.one_shot = true
-    focus_restore_timer.connect("timeout", self, "restore_focus")
-    add_child(focus_restore_timer)
     get_tree().connect("node_added", self, "augment_tree")
 
 func _input(event):
     if event is InputEventScreenTouch:
         pass
+ 
+func _process(delta):
+    if focus_restore_timer and focus_restore_timer.time_left <= 0:
+        var focus = find_focusable_control(get_tree().root)
+        if focus and not focus.get_focus_owner():
+            print("Restoring focus.")
+            focus.grab_focus()
+            focus.grab_click_focus()
