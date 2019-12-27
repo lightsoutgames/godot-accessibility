@@ -69,7 +69,7 @@ func _enter_tree():
 func _input(event):
     if event is InputEventScreenTouch:
         pass
- 
+
 func _process(delta):
     if focus_restore_timer and focus_restore_timer.time_left <= 0:
         var focus = find_focusable_control(get_tree().root)
