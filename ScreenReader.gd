@@ -75,3 +75,7 @@ func _enter_tree():
     focus_restore_timer.connect("timeout", self, "restore_focus")
     add_child(focus_restore_timer)
     get_tree().connect("node_added", self, "augment_tree")
+
+func _input(event):
+    if event is InputEventScreenTouch:
+        pass
