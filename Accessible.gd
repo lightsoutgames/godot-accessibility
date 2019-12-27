@@ -496,9 +496,8 @@ func unfocused():
     position_in_children = 0
     timer = weakref(node.get_tree().create_timer(1))
     yield(timer.get_ref(), "timeout")
-    if not node.get_focus_owner():
+    if node.is_inside_tree() and not node.get_focus_owner():
         node.get_tree().root.warp_mouse(node.rect_global_position)
-    timer.get_ref().unreference()
 
 func click_focused():
     if node.has_focus():
@@ -629,4 +628,5 @@ func _init(node):
 
 func _exit_tree():
     if timer != null and timer.get_ref():
+        timer.get_ref().emit_signal("timeout")
         timer.get_ref().unreference()
