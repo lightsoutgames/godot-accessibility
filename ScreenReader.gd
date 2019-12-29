@@ -1,7 +1,17 @@
 tool
 extends Node
 
+signal swipe_left
+
+signal swipe_right
+
+signal swipe_up
+
+signal swipe_down
+
 var Accessible = preload("Accessible.gd")
+
+export var explore_by_touch_distance = 5
 
 var focus_restore_timer
 
@@ -66,9 +76,39 @@ func set_initial_scene_focus(scene):
 func _enter_tree():
     get_tree().connect("node_added", self, "augment_tree")
 
+var touch_index = null
+
+var touch_position = null
+
+var explore_by_touch = false
+
 func _input(event):
     if event is InputEventScreenTouch:
-        pass
+        print(event.position)
+        get_tree().set_input_as_handled()
+        if touch_index and event.index != touch_index:
+            return
+        if event.pressed:
+            touch_index = event.index
+            touch_position = event.position
+        else:
+            touch_index = null
+            var relative = event.position - touch_position
+            if abs(relative.x) > abs(relative.y):
+                if relative.x > 0:
+                    emit_signal("swipe_right")
+                else:
+                    emit_signal("swipe_left")
+            else:
+                if relative.y > 0:
+                    emit_signal("swipe_down")
+                else:
+                    emit_signal("swipe_up")
+            touch_position = null
+            explore_by_touch = false
+    elif event is InputEventScreenDrag:
+        if touch_index and event.index != touch_index:
+            return
 
 func _process(delta):
     if focus_restore_timer and focus_restore_timer.time_left <= 0:
