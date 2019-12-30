@@ -599,6 +599,9 @@ func _init(node):
     self.node = node
     if is_focusable(node):
         node.set_focus_mode(Control.FOCUS_ALL)
+    var label = guess_label()
+    if label and label is Label:
+        label.set_focus_mode(Control.FOCUS_NONE)
     node.connect("focus_entered", self, "focused")
     node.connect("mouse_entered", self, "click_focused")
     node.connect("focus_exited", self, "unfocused")
