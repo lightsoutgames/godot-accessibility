@@ -634,3 +634,9 @@ func _process(delta):
         if node.is_inside_tree() and not node.get_focus_owner():
             node.get_tree().root.warp_mouse(node.rect_global_position)
             timer = null
+
+func free():
+    if timer:
+        timer.unreference()
+        timer = null
+    .free()

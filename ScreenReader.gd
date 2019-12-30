@@ -86,6 +86,11 @@ func _enter_tree():
     connect("swipe_up", self, "swipe_up")
     connect("swipe_down", self, "swipe_down")
 
+func _exit_tree():
+    for accessible in accessibles:
+        accessible.free()
+    accessibles = []
+
 func press_and_release(action):
     var event = InputEventAction.new()
     event.action = action
