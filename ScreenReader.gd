@@ -13,9 +13,9 @@ var Accessible = preload("Accessible.gd")
 
 export var min_swipe_distance = 5
 
-export var tap_execute_interval = 100
+export var tap_execute_interval = 125
 
-export var explore_by_touch_interval = 150
+export var explore_by_touch_interval = 200
 
 var focus_restore_timer
 
@@ -107,7 +107,7 @@ func _input(event):
             var relative = event.position - touch_position
             if relative.length() < min_swipe_distance:
                 tap_count += 1
-            else:
+            elif not explore_by_touch:
                 if abs(relative.x) > abs(relative.y):
                     if relative.x > 0:
                         emit_signal("swipe_right")
@@ -129,6 +129,9 @@ func _input(event):
     elif event is InputEventScreenDrag:
         if touch_index and event.index != touch_index:
             return
+        if not explore_by_touch and OS.get_ticks_msec() - touch_start_time >= explore_by_touch_interval:
+            explore_by_touch = true
+            TTS.speak("Explore")
 
 func _process(delta):
     if touch_stop_time and OS.get_ticks_msec() - touch_stop_time >= tap_execute_interval and tap_count != 0:
