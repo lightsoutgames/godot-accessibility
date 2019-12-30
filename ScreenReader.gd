@@ -79,6 +79,28 @@ func set_initial_scene_focus(scene):
 
 func _enter_tree():
     get_tree().connect("node_added", self, "augment_tree")
+    connect("swipe_right", self, "swipe_right")
+    connect("swipe_left", self, "swipe_left")
+    connect("swipe_up", self, "swipe_up")
+    connect("swipe_down", self, "swipe_down")
+
+func press(action):
+    var event = InputEventAction.new()
+    event.action = action
+    event.pressed = true
+    get_tree().input_event(event)
+
+func swipe_right():
+    press("ui_focus_next")
+
+func swipe_left():
+    press("ui_focus_prev")
+
+func swipe_up():
+    TTS.speak("Swipe up")
+
+func swipe_down():
+    TTS.speak("Swipe down")
 
 var touch_index = null
 
@@ -111,17 +133,13 @@ func _input(event):
                 if abs(relative.x) > abs(relative.y):
                     if relative.x > 0:
                         emit_signal("swipe_right")
-                        TTS.speak("Swipe right")
                     else:
                         emit_signal("swipe_left")
-                        TTS.speak("Swipe left")
                 else:
                     if relative.y > 0:
                         emit_signal("swipe_down")
-                        TTS.speak("Swipe down")
                     else:
                         emit_signal("swipe_up")
-                        TTS.speak("Swipe up")
             touch_position = null
             touch_start_time = null
             touch_stop_time = OS.get_ticks_msec()
