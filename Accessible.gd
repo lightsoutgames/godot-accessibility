@@ -450,12 +450,13 @@ func tab_container_input(event):
 func focused():
     print_debug("Focus: %s" % node)
     TTS.stop()
-    var label = guess_label()
-    if label:
-        if label is Label:
-            label = label.text
-        if label and label != "":
-            TTS.speak(label, false)
+    if not node is Label:
+        var label = guess_label()
+        if label:
+            if label is Label:
+                label = label.text
+            if label and label != "":
+                TTS.speak(label, false)
     if node is MenuButton:
         menu_button_focused()
     elif node is AcceptDialog:
