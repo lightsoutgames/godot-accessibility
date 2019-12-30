@@ -158,7 +158,9 @@ func _input(event):
             return
         if not explore_by_touch and OS.get_ticks_msec() - touch_start_time >= explore_by_touch_interval:
             explore_by_touch = true
-            TTS.speak("Explore")
+    if event is InputEventMouseButton:
+        if event.device == -1 and not explore_by_touch:
+            get_tree().set_input_as_handled()
 
 func _process(delta):
     if touch_stop_time and OS.get_ticks_msec() - touch_stop_time >= tap_execute_interval and tap_count != 0:
