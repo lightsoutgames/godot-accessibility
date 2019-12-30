@@ -11,7 +11,11 @@ signal swipe_down
 
 var Accessible = preload("Accessible.gd")
 
-export var explore_by_touch_distance = 5
+export var min_swipe_distance = 5
+
+export var tap_execute_interval = 100
+
+export var explore_by_touch_interval = 150
 
 var focus_restore_timer
 
@@ -80,37 +84,57 @@ var touch_index = null
 
 var touch_position = null
 
+var touch_start_time = null
+
+var touch_stop_time = null
+
 var explore_by_touch = false
+
+var tap_count = 0
 
 func _input(event):
     if event is InputEventScreenTouch:
-        print(event.position)
         get_tree().set_input_as_handled()
         if touch_index and event.index != touch_index:
             return
         if event.pressed:
             touch_index = event.index
             touch_position = event.position
+            touch_start_time = OS.get_ticks_msec()
+            touch_stop_time = null
         else:
             touch_index = null
             var relative = event.position - touch_position
-            if abs(relative.x) > abs(relative.y):
-                if relative.x > 0:
-                    emit_signal("swipe_right")
-                else:
-                    emit_signal("swipe_left")
+            if relative.length() < min_swipe_distance:
+                tap_count += 1
             else:
-                if relative.y > 0:
-                    emit_signal("swipe_down")
+                if abs(relative.x) > abs(relative.y):
+                    if relative.x > 0:
+                        emit_signal("swipe_right")
+                        TTS.speak("Swipe right")
+                    else:
+                        emit_signal("swipe_left")
+                        TTS.speak("Swipe left")
                 else:
-                    emit_signal("swipe_up")
+                    if relative.y > 0:
+                        emit_signal("swipe_down")
+                        TTS.speak("Swipe down")
+                    else:
+                        emit_signal("swipe_up")
+                        TTS.speak("Swipe up")
             touch_position = null
+            touch_start_time = null
+            touch_stop_time = OS.get_ticks_msec()
             explore_by_touch = false
     elif event is InputEventScreenDrag:
         if touch_index and event.index != touch_index:
             return
 
 func _process(delta):
+    if touch_stop_time and OS.get_ticks_msec() - touch_stop_time >= tap_execute_interval and tap_count != 0:
+        touch_stop_time = null
+        TTS.speak("%s taps" % tap_count)
+        tap_count = 0
     if focus_restore_timer and focus_restore_timer.time_left <= 0:
         var focus = find_focusable_control(get_tree().root)
         if focus and not focus.get_focus_owner():
