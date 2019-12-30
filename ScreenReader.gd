@@ -84,17 +84,19 @@ func _enter_tree():
     connect("swipe_up", self, "swipe_up")
     connect("swipe_down", self, "swipe_down")
 
-func press(action):
+func press_and_release(action):
     var event = InputEventAction.new()
     event.action = action
     event.pressed = true
     get_tree().input_event(event)
+    event.pressed = false
+    get_tree().input_event(event)
 
 func swipe_right():
-    press("ui_focus_next")
+    press_and_release("ui_focus_next")
 
 func swipe_left():
-    press("ui_focus_prev")
+    press_and_release("ui_focus_prev")
 
 func swipe_up():
     TTS.speak("Swipe up")
@@ -154,7 +156,8 @@ func _input(event):
 func _process(delta):
     if touch_stop_time and OS.get_ticks_msec() - touch_stop_time >= tap_execute_interval and tap_count != 0:
         touch_stop_time = null
-        TTS.speak("%s taps" % tap_count)
+        if tap_count == 2:
+            press_and_release("ui_accept")
         tap_count = 0
     if focus_restore_timer and focus_restore_timer.time_left <= 0:
         var focus = find_focusable_control(get_tree().root)
