@@ -502,13 +502,6 @@ func unfocused():
     position_in_children = 0
     timer = node.get_tree().create_timer(1)
 
-func click_focused():
-    if node.has_focus():
-        return
-    if node.focus_mode == Control.FOCUS_ALL:
-        print_debug("Grabbing focus: %s" % node)
-        node.grab_focus()
-
 func gui_input(event):
     if event is InputEventKey and Input.is_action_just_pressed("ui_accept") and event.control and event.alt:
         TTS.speak("click", false)
@@ -599,9 +592,7 @@ func _init(node):
     if is_focusable(node):
         node.set_focus_mode(Control.FOCUS_ALL)
     node.connect("focus_entered", self, "focused")
-    node.connect("mouse_entered", self, "click_focused")
     node.connect("focus_exited", self, "unfocused")
-    node.connect("mouse_exited", self, "unfocused")
     node.connect("gui_input", self, "gui_input")
     if node is CheckBox:
         node.connect("toggled", self, "checkbox_toggled")

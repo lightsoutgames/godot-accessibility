@@ -24,9 +24,6 @@ var focus_restore_timer
 func focused(node):
     focus_restore_timer = null
 
-func click_focused(node):
-    pass
-
 func unfocused(node):
     focus_restore_timer = get_tree().create_timer(0.2)
 
@@ -36,12 +33,8 @@ func augment_node(node):
         accessibles.append(accessible)
         if not node.is_connected("focus_entered", self, "focused"):
             node.connect("focus_entered", self, "focused", [node])
-        if not node.is_connected("mouse_entered", self, "click_focused"):
-            node.connect("mouse_entered", self, "click_focused", [node])
         if not node.is_connected("focus_exited", self, "unfocused"):
             node.connect("focus_exited", self, "unfocused", [node])
-        if not node.is_connected("mouse_exited", self, "unfocused"):
-            node.connect("mouse_exited", self, "unfocused", [node])
 
 func augment_tree(node):
     if node is Accessible:
