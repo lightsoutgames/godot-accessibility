@@ -454,7 +454,8 @@ func focused():
     if label:
         if label is Label:
             label = label.text
-        TTS.speak(label, false)
+        if label and label != "":
+            TTS.speak(label, false)
     if node is MenuButton:
         menu_button_focused()
     elif node is AcceptDialog:
