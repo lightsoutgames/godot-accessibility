@@ -45,6 +45,10 @@ func accept_dialog_focused():
     yield(node.get_tree().create_timer(5), "timeout")
     node.get_ok().emit_signal("pressed")
 
+func _acceptdialog_about_to_show():
+    if node.dialog_text != "":
+        TTS.speak(node.dialog_text)
+
 func checkbox_focused():
     var tokens = PoolStringArray([])
     if node.pressed:
@@ -607,7 +611,9 @@ func _init(node):
     node.connect("focus_exited", self, "unfocused")
     node.connect("mouse_exited", self, "unfocused")
     node.connect("gui_input", self, "gui_input")
-    if node is CheckBox:
+    if node is AcceptDialog:
+        node.connect("about_to_show", self, "_acceptdialog_about_to_show")
+    elif node is CheckBox:
         node.connect("toggled", self, "checkbox_toggled")
     elif node is ItemList:
         node.connect("item_selected", self, "item_list_item_selected")
