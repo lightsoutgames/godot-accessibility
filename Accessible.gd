@@ -29,6 +29,8 @@ func guess_label():
     var tokens = PoolStringArray([])
     var to_check = node
     while to_check:
+        if to_check.is_class("AcceptDialog"):
+            return
         if to_check.is_class("EditorProperty") and to_check.label:
             tokens.append(to_check.label)
         if (to_check.is_class("EditorProperty") or to_check.is_class("EditorInspectorCategory")) and to_check.get_tooltip_text():
@@ -43,7 +45,7 @@ func guess_label():
 
 func _accept_dialog_speak():
     if node.dialog_text != "":
-        TTS.speak(node.dialog_text)
+        TTS.speak("%s: dialog" % node.dialog_text)
 
 func accept_dialog_focused():
     _accept_dialog_speak()
@@ -579,6 +581,8 @@ func is_focusable(node):
         return true
     if node is AcceptDialog:
         return true
+    if node is Label and node.get_parent() and node.get_parent() is AcceptDialog:
+        return false
     if node is Container or node is Separator or node is ScrollBar or node is Popup or node.get_class() == "Control":
         return false
     return true
