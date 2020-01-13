@@ -41,13 +41,18 @@ func guess_label():
                 return child
         to_check = to_check.get_parent()
 
-func accept_dialog_focused():
-    yield(node.get_tree().create_timer(5), "timeout")
-    node.get_ok().emit_signal("pressed")
-
-func _acceptdialog_about_to_show():
+func _accept_dialog_speak():
     if node.dialog_text != "":
         TTS.speak(node.dialog_text)
+
+func accept_dialog_focused():
+    _accept_dialog_speak()
+    if node.get_parent() and node.get_parent().is_class("ProjectSettingsEditor"):
+        yield(node.get_tree().create_timer(5), "timeout")
+        node.get_ok().emit_signal("pressed")
+
+func _accept_dialog_about_to_show():
+    _accept_dialog_speak()
 
 func checkbox_focused():
     var tokens = PoolStringArray([])
@@ -612,7 +617,7 @@ func _init(node):
     node.connect("mouse_exited", self, "unfocused")
     node.connect("gui_input", self, "gui_input")
     if node is AcceptDialog:
-        node.connect("about_to_show", self, "_acceptdialog_about_to_show")
+        node.connect("about_to_show", self, "_accept_dialog_about_to_show")
     elif node is CheckBox:
         node.connect("toggled", self, "checkbox_toggled")
     elif node is ItemList:
