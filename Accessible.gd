@@ -577,6 +577,8 @@ func is_focusable(node):
         return true
     if node.is_class("EditorInspectorSection"):
         return true
+    if node is AcceptDialog:
+        return true
     if node is Container or node is Separator or node is ScrollBar or node is Popup or node.get_class() == "Control":
         return false
     return true
