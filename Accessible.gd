@@ -225,15 +225,16 @@ func popup_menu_item_id_focused(index):
     print_debug("item id focus %s" % index)
     var tokens = PoolStringArray([])
     var shortcut = node.get_item_shortcut(index)
+    var name
     if shortcut:
-        var name = shortcut.resource_name
+        name = shortcut.resource_name
         if name:
             tokens.append(name)
         var text = shortcut.get_as_text()
         if text != "None":
             tokens.append(text)
     var item = node.get_item_text(index)
-    if item:
+    if item and item != name:
         tokens.append(item)
     var submenu = node.get_item_submenu(index)
     if submenu:
