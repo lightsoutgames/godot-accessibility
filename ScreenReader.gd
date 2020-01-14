@@ -99,11 +99,33 @@ func press_and_release(action):
     event.pressed = false
     get_tree().input_event(event)
 
+func _ui_focus_next():
+    for event in InputMap.get_action_list("ui_focus_next"):
+        if event is InputEventKey:
+            event.pressed = true
+            Input.action_press("ui_focus_next")
+            get_tree().input_event(event)
+            event.pressed = false
+            Input.action_release("ui_focus_next")
+            get_tree().input_event(event)
+            return
+
+func _ui_focus_prev():
+    for event in InputMap.get_action_list("ui_focus_prev"):
+        if event is InputEventKey:
+            event.pressed = true
+            Input.action_press("ui_focus_prev")
+            get_tree().input_event(event)
+            event.pressed = false
+            Input.action_release("ui_focus_prev")
+            get_tree().input_event(event)
+            return
+
 func swipe_right():
-    press_and_release("ui_focus_next")
+    _ui_focus_next()
 
 func swipe_left():
-    press_and_release("ui_focus_prev")
+    _ui_focus_prev()
 
 func swipe_up():
     TTS.speak("Swipe up")
