@@ -4,7 +4,7 @@ _Warning: Still in early development. Only use if you're willing and able to rol
 
 This plugin implements a screen reader for user interfaces created with the [Godot game engine](https://godotengine.org). The goal is to enable the creation of [audio games](https://en.wikipedia.org/wiki/Audio_game) with Godot, as well as to add accessibility functionality to user interfaces and to encourage the creation of accessible games.
 
-For best results, please use [Godot 3.2 Beta 6](https://downloads.tuxfamily.org/godotengine/3.2/beta6/) at minimum. 3.2 has minor accessibility fixes needed to get the most out of this addon.
+Note that only 64-bit versions of Godot are supported for now. If you need 32-bit support, you'll need to rebuild [godot-tts](https://gitlab.com/lightsoutgames/godot-tts). Patches to automate 32-bit builds are welcome, but I'm not a Windows person and haven't been able to manage it. Also, for best results, please use [Godot 3.2 Beta 6](https://downloads.tuxfamily.org/godotengine/3.2/beta6/) at minimum. 3.2 has minor accessibility fixes needed to get the most out of this addon.
 
 ## Why?
 
