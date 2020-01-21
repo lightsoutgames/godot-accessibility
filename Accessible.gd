@@ -82,6 +82,8 @@ func button_focused():
         spoke_hint_tooltip = true
         tokens.append(node.hint_tooltip)
     tokens.append("button")
+    if node.disabled:
+        tokens.append("disabled")
     TTS.speak(tokens.join(": "), false)
 
 func texturebutton_focused():
