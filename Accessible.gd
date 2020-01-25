@@ -545,14 +545,6 @@ func gui_input(event):
         return tree_input(event)
     elif node.is_class("EditorInspectorSection"):
         return editor_inspector_section_input(event)
-    elif event.is_action_pressed("ui_left"):
-        return node.accept_event()
-    elif event.is_action_pressed("ui_right"):
-        return node.accept_event()
-    elif event.is_action_pressed("ui_up"):
-        return node.accept_event()
-    elif event.is_action_pressed("ui_down"):
-        return node.accept_event()
 
 func is_in_bar():
     var parent = node.get_parent()
