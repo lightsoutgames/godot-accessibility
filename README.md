@@ -19,7 +19,7 @@ Anecdotally, I've learned that building games with Godot is not only possible, b
 There is an [accessible starter project](https://gitlab.com/lightsoutgames/godot-accessible-starter) that does most of this for you, and sets up a basic project with an in-game screen reader and editor accessibility. But here are the steps from an empty Godot project:
 
 1. Place this repository in a directory named _addons/godot-accessibility_ inside your project. This plugins root directory should be reachable at the Godot path _res://addons/godot-accessibility_.
-2. Download the [latest release of the Godot TTS plugin](https://gitlab.com/lightsoutgames/godot-tts/-/jobs/artifacts/master/download?job=publish) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
+2. Download the [latest release of the Godot TTS addon](https://gitlab.com/lightsoutgames/godot-tts/-/jobs/artifacts/master/download?job=publish) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
 3. Enable the Godot Accessibility plugin from the editor UI. Or, if you have a _project.godot_ file, ensure that you have a section like:
 ```
 [editor_plugins]
@@ -34,7 +34,7 @@ editor_accessibility__enabled = true ; Set to false if you'd like this plugin's 
 rate = 50 ; range is 0 to 100.
 ```
 This file shouldn't be checked into version control, so add it to your ignore patterns.
-5. Optionally, set up Android TTS. After performing [Android export setup](https://docs.godotengine.org/en/3.1/getting_started/workflow/export/exporting_for_android.html) and downloading templates, click _Project -> Install Android Build Template_. Copy, or link, _addons/godot-tts/android_ to _android/godot-tts_.
+5. Optionally, set up Android TTS. After performing [Android export setup](https://docs.godotengine.org/en/3.2/getting_started/workflow/export/exporting_for_android.html) and downloading templates, click _Project -> Install Android Build Template_. Copy, or link, _addons/godot-tts/android_ to _android/godot-tts_.
 6. Launch your project in the editor by running `godot -e` in the top-level directory. Or, to launch the game normally, simply run `godot`.
 
 ## What is provided?
@@ -80,6 +80,8 @@ I know. This interface was designed for mouse users. I can probably add a hotkey
 
 One promising area of exploration is Godot 3.2's ability to disable editor features. Audio-only games might get away with disabling 3-D and other views, thus at least minimizing tab fatigue. But that feature crashed when I last attempted it (3.2 alphas) and I haven't tried again.
 
+You can also arrow around the UI, though arrow navigation isn't quite as deterministic as tab/shift-tab navigation.
+
 ### How do I bind an action to a key?
 
 This is a fun one. First, the controls to do this need to be accessed in a non-standard way. Then, you've got a non-discoverable dialog. But here's the process:
@@ -88,7 +90,7 @@ This is a fun one. First, the controls to do this need to be accessed in a non-s
 2. In the submenu, click Project Settings.
 3. Tab until you reach the tab list.
 4. Arrow right to Input Map.
-5. Here you can either create a new bindable action by typing a name into the text field, or tab to the tree and select an existing action to bind a new key/controller to.
+5. Here you can either create a new bindable action by typing a name into the text field, or tab to the tree and select an existing action to bind a new key/controller button to.
 6. When in the tree, you'll need to access controls for the individual items. Godot is a bit odd in how it associates controls with tree items. Sometimes they're context menus. Others, as here, they're a horizontal row of buttons in one of the tree row cells. To access these, select an action, arrow right twice, and use Home/End to switch between individual buttons on each row. There should be an _Add_ button of some sort. Select it and press _Space_ or _enter_.
 7. You then land on a popup menu allowing you to bind a key, joystick button, etc. Arrow to _Key_ and press _Enter_.
 8. If you select the option to add a key to an action, focus lands in a dialog. You won't get any speech for this. I think you're supposed to do this by pressing the desired key, then clicking a Close button. Naturally, for us this would bind everything to _Space_ or _enter_. Instead, the addon closes the dialog automatically after five seconds, so press your desired key or combination and wait. Pressing a second key or combination clears the first, so if you make a mistake, just press the correct key combination. You won't get speech feedback until the dialog closes.
