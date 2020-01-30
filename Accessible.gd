@@ -483,7 +483,7 @@ func focused():
         editor_inspector_section_focused()
     elif node is ItemList:
         item_list_focused()
-    elif node is Label:
+    elif node is Label or node is RichTextLabel:
         label_focused()
     elif node is LineEdit:
         line_edit_focused()
