@@ -11,8 +11,6 @@ signal swipe_down
 
 var Accessible = preload("Accessible.gd")
 
-var accessibles = []
-
 export var min_swipe_distance = 5
 
 export var tap_execute_interval = 125
@@ -32,8 +30,7 @@ func unfocused(node):
 
 func augment_node(node):
     if node is Control:
-        var accessible = Accessible.new(node)
-        accessibles.append(accessible)
+        Accessible.new(node)
         if not node.is_connected("focus_entered", self, "focused"):
             node.connect("focus_entered", self, "focused", [node])
         if not node.is_connected("mouse_entered", self, "click_focused"):
@@ -80,16 +77,12 @@ func set_initial_scene_focus(scene):
     focus.grab_focus()
 
 func _enter_tree():
-    get_tree().connect("node_added", self, "augment_tree")
+    augment_tree(get_tree().root)
+    get_tree().connect("node_added", self, "augment_node")
     connect("swipe_right", self, "swipe_right")
     connect("swipe_left", self, "swipe_left")
     connect("swipe_up", self, "swipe_up")
     connect("swipe_down", self, "swipe_down")
-
-func _exit_tree():
-    for accessible in accessibles:
-        accessible.free()
-    accessibles = []
 
 func press_and_release(action):
     var event = InputEventAction.new()

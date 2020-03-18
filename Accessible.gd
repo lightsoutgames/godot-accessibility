@@ -606,6 +606,8 @@ func _init(node):
     if node.is_in_group("accessible"):
         return
     node.add_to_group("accessible")
+    add_to_group("accessibles")
+    node.add_child(self)
     self.node = node
     if is_focusable(node):
         node.set_focus_mode(Control.FOCUS_ALL)
