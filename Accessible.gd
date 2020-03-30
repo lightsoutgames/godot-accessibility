@@ -45,7 +45,7 @@ func guess_label():
 
 func _accept_dialog_speak():
     if node.dialog_text != "":
-        TTS.speak("%s: dialog" % node.dialog_text)
+        TTS.speak("dialog: %s" % node.dialog_text)
 
 func accept_dialog_focused():
     _accept_dialog_speak()
