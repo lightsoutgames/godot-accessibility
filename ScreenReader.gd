@@ -11,6 +11,8 @@ signal swipe_down
 
 var Accessible = preload("Accessible.gd")
 
+export var enabled = true setget _set_enabled, _get_enabled
+
 export var min_swipe_distance = 5
 
 export var tap_execute_interval = 125
@@ -18,6 +20,16 @@ export var tap_execute_interval = 125
 export var explore_by_touch_interval = 200
 
 var focus_restore_timer
+
+func _set_enabled(v):
+    if enabled:
+        augment_tree(get_tree().root)
+    else:
+        pass
+    enabled = v
+
+func _get_enabled():
+    return enabled
 
 func focused(node):
     focus_restore_timer = null
@@ -29,6 +41,8 @@ func unfocused(node):
     focus_restore_timer = get_tree().create_timer(0.2)
 
 func augment_node(node):
+    if not enabled:
+        return
     if node is Control:
         Accessible.new(node)
         if not node.is_connected("focus_entered", self, "focused"):
@@ -41,6 +55,8 @@ func augment_node(node):
             node.connect("mouse_exited", self, "unfocused", [node])
 
 func augment_tree(node):
+    if not enabled:
+        return
     if node is Accessible:
         return
     augment_node(node)
@@ -77,7 +93,8 @@ func set_initial_scene_focus(scene):
     focus.grab_focus()
 
 func _enter_tree():
-    augment_tree(get_tree().root)
+    if enabled:
+        augment_tree(get_tree().root)
     get_tree().connect("node_added", self, "augment_node")
     connect("swipe_right", self, "swipe_right")
     connect("swipe_left", self, "swipe_left")
@@ -139,6 +156,8 @@ var explore_by_touch = false
 var tap_count = 0
 
 func _input(event):
+    if not enabled:
+        return
     if event is InputEventScreenTouch:
         get_tree().set_input_as_handled()
         if touch_index and event.index != touch_index:
@@ -178,6 +197,8 @@ func _input(event):
             get_tree().set_input_as_handled()
 
 func _process(delta):
+    if not enabled:
+        return
     if touch_stop_time and OS.get_ticks_msec() - touch_stop_time >= tap_execute_interval and tap_count != 0:
         touch_stop_time = null
         if tap_count == 2:
