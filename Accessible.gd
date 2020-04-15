@@ -178,12 +178,12 @@ func line_edit_focused():
         type = "text"
     TTS.speak("%s: %s" % [text, type], false)
 
-var old_text
+var old_text = ""
 
 var old_pos
 
 func line_edit_text_changed(text):
-    if not text or not old_text:
+    if text == null or old_text == null:
         return
     if len(text) > len(old_text):
         for i in range(len(text)):
