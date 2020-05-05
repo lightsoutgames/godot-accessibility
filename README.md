@@ -4,7 +4,7 @@ _Warning: Still in early development. Only use if you're willing and able to rol
 
 This plugin implements a screen reader for user interfaces created with the [Godot game engine](https://godotengine.org). The goal is to enable the creation of [audio games](https://en.wikipedia.org/wiki/Audio_game) with Godot, as well as to add accessibility functionality to user interfaces and to encourage the creation of accessible games. 3.2 is the minimum supported version, though most functionality should work on 3.1 as well.
 
-Note that only 64-bit versions of Godot are supported for now. If you need 32-bit support, you'll need to rebuild [godot-tts](https://gitlab.com/lightsoutgames/godot-tts). Patches to automate 32-bit builds are welcome, but I'm not a Windows person and haven't been able to manage it.
+Note that only 64-bit versions of Godot are supported for now. If you need 32-bit support, you'll need to rebuild [godot-tts](https://github.com/lightsoutgames/godot-tts). Patches to automate 32-bit builds are welcome, but I'm not a Windows person and haven't been able to manage it.
 
 ## Why?
 
@@ -16,10 +16,10 @@ Anecdotally, I've learned that building games with Godot is not only possible, b
 
 ## Installation
 
-There is an [accessible starter project](https://gitlab.com/lightsoutgames/godot-accessible-starter) that does most of this for you, and sets up a basic project with an in-game screen reader and editor accessibility. But here are the steps from an empty Godot project:
+There is an [accessible starter project](https://github.com/lightsoutgames/godot-accessible-starter) that does most of this for you, and sets up a basic project with an in-game screen reader and editor accessibility. But here are the steps from an empty Godot project:
 
 1. Place this repository in a directory named _addons/godot-accessibility_ inside your project. This plugins root directory should be reachable at the Godot path _res://addons/godot-accessibility_.
-2. Download the [latest release of the Godot TTS addon](https://gitlab.com/lightsoutgames/godot-tts/-/jobs/artifacts/master/download?job=publish) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
+2. Download the [latest release of the Godot TTS addon](https://github.com/lightsoutgames/godot-tts/releases) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
 3. Enable the Godot Accessibility plugin from the editor UI. Or, if you have a _project.godot_ file, ensure that you have a section like:
 ```
 [editor_plugins]
