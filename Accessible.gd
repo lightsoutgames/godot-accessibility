@@ -13,7 +13,7 @@ func get_siblings():
     return null
 
 func click(item := node, button_index = BUTTON_LEFT):
-    print("Click")
+    print_debug("Click")
     var click = InputEventMouseButton.new()
     click.button_index = button_index
     click.pressed = true

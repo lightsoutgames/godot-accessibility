@@ -207,6 +207,6 @@ func _process(delta):
     if focus_restore_timer and focus_restore_timer.time_left <= 0:
         var focus = find_focusable_control(get_tree().root)
         if focus and not focus.get_focus_owner():
-            print("Restoring focus.")
+            print_debug("Restoring focus.")
             focus.grab_focus()
             focus.grab_click_focus()
