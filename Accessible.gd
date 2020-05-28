@@ -668,12 +668,13 @@ func is_focusable(node):
 
 func editor_inspector_section_focused():
 	var child = node.get_children()[0]
-	var expanded = child.is_visible_in_tree()
 	var tokens = PoolStringArray(["editor inspector section"])
-	if expanded:
-		tokens.append("expanded")
-	else:
-		tokens.append("collapsed")
+	if child is CanvasItem or child is Spatial:
+		var expanded = child.is_visible_in_tree()
+		if expanded:
+			tokens.append("expanded")
+		else:
+			tokens.append("collapsed")
 	TTS.speak(tokens.join(": "), false)
 
 
