@@ -119,7 +119,17 @@ func _enter_tree():
 	connect("swipe_down", self, "swipe_down")
 
 
-func _press_and_release(action):
+func _press_and_release(action, fake_via_keyboard = false):
+	if fake_via_keyboard:
+		for event in InputMap.get_action_list(action):
+			if event is InputEventKey:
+				event.pressed = true
+				Input.action_press(action)
+				get_tree().input_event(event)
+				event.pressed = false
+				Input.action_release(action)
+				get_tree().input_event(event)
+				return
 	var event = InputEventAction.new()
 	event.action = action
 	event.pressed = true
@@ -128,48 +138,42 @@ func _press_and_release(action):
 	get_tree().input_event(event)
 
 
-func _send_via_keyboard(action):
-	for event in InputMap.get_action_list(action):
-		if event is InputEventKey:
-			event.pressed = true
-			Input.action_press(action)
-			get_tree().input_event(event)
-			event.pressed = false
-			Input.action_release(action)
-			get_tree().input_event(event)
-			return
+func _ui_left(fake_via_keyboard = false):
+	_press_and_release("ui_left", fake_via_keyboard)
 
 
-func _ui_left():
-	_send_via_keyboard("ui_left")
+func _ui_right(fake_via_keyboard = false):
+	_press_and_release("ui_right", fake_via_keyboard)
 
 
-func _ui_right():
-	_send_via_keyboard("ui_right")
+func _ui_up(fake_via_keyboard = false):
+	_press_and_release("ui_up", fake_via_keyboard)
 
 
-func _ui_up():
-	_send_via_keyboard("ui_up")
+func _ui_down(fake_via_keyboard = false):
+	_press_and_release("ui_down", fake_via_keyboard)
 
 
-func _ui_down():
-	_send_via_keyboard("ui_down")
+func _ui_focus_next(fake_via_keyboard = false):
+	_press_and_release("ui_focus_next", fake_via_keyboard)
 
 
-func _ui_focus_next():
-	_send_via_keyboard("ui_focus_next")
-
-
-func _ui_focus_prev():
-	_send_via_keyboard("ui_focus_prev")
+func _ui_focus_prev(fake_via_keyboard = false):
+	_press_and_release("ui_focus_prev", fake_via_keyboard)
 
 
 func swipe_right():
-	_ui_focus_next()
+	var fake_via_keyboard = false
+	if OS.get_name() == "Android":
+		fake_via_keyboard = true
+	_ui_focus_next(fake_via_keyboard)
 
 
 func swipe_left():
-	_ui_focus_prev()
+	var fake_via_keyboard = false
+	if OS.get_name() == "Android":
+		fake_via_keyboard = true
+	_ui_focus_prev(fake_via_keyboard)
 
 
 func swipe_up():
@@ -228,17 +232,17 @@ func _input(event):
 					return
 				in_focus_mode_handler = true
 				if Input.is_action_just_pressed("ui_left"):
-					_press_and_release("ui_left")
+					_ui_left()
 				elif Input.is_action_just_pressed("ui_right"):
-					_press_and_release("ui_right")
+					_ui_right()
 				elif Input.is_action_just_pressed("ui_up"):
-					_press_and_release("ui_up")
+					_ui_up()
 				elif Input.is_action_just_pressed("ui_down"):
-					_press_and_release("ui_down")
+					_ui_down()
 				elif Input.is_action_just_pressed("ui_focus_prev"):
-					_press_and_release("ui_focus_prev")
+					_ui_focus_prev()
 				elif Input.is_action_just_pressed("ui_focus_next"):
-					_press_and_release("ui_focus_next")
+					_ui_focus_next()
 				get_tree().set_input_as_handled()
 				in_focus_mode_handler = false
 				return
