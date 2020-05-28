@@ -228,15 +228,15 @@ func _input(event):
 					return
 				in_focus_mode_handler = true
 				if Input.is_action_just_pressed("ui_left"):
-					_ui_left()
+					_press_and_release("ui_left")
 				elif Input.is_action_just_pressed("ui_right"):
-					_ui_right()
+					_press_and_release("ui_right")
 				elif Input.is_action_just_pressed("ui_up"):
-					_ui_up()
+					_press_and_release("ui_up")
 				elif Input.is_action_just_pressed("ui_down"):
-					_ui_down()
+					_press_and_release("ui_down")
 				elif Input.is_action_just_pressed("ui_focus_prev"):
-					_ui_focus_prev()
+					_press_and_release("ui_focus_prev")
 				elif Input.is_action_just_pressed("ui_focus_next"):
 					_press_and_release("ui_focus_next")
 				get_tree().set_input_as_handled()
