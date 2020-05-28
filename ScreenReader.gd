@@ -19,6 +19,8 @@ export var tap_execute_interval = 125
 
 export var explore_by_touch_interval = 200
 
+export var enable_focus_mode = false
+
 var focus_restore_timer
 
 
@@ -117,7 +119,7 @@ func _enter_tree():
 	connect("swipe_down", self, "swipe_down")
 
 
-func press_and_release(action):
+func _press_and_release(action):
 	var event = InputEventAction.new()
 	event.action = action
 	event.pressed = true
@@ -126,28 +128,40 @@ func press_and_release(action):
 	get_tree().input_event(event)
 
 
-func _ui_focus_next():
-	for event in InputMap.get_action_list("ui_focus_next"):
+func _send_via_keyboard(action):
+	for event in InputMap.get_action_list(action):
 		if event is InputEventKey:
 			event.pressed = true
-			Input.action_press("ui_focus_next")
+			Input.action_press(action)
 			get_tree().input_event(event)
 			event.pressed = false
-			Input.action_release("ui_focus_next")
+			Input.action_release(action)
 			get_tree().input_event(event)
 			return
+
+
+func _ui_left():
+	_send_via_keyboard("ui_left")
+
+
+func _ui_right():
+	_send_via_keyboard("ui_right")
+
+
+func _ui_up():
+	_send_via_keyboard("ui_up")
+
+
+func _ui_down():
+	_send_via_keyboard("ui_down")
+
+
+func _ui_focus_next():
+	_send_via_keyboard("ui_focus_next")
 
 
 func _ui_focus_prev():
-	for event in InputMap.get_action_list("ui_focus_prev"):
-		if event is InputEventKey:
-			event.pressed = true
-			Input.action_press("ui_focus_prev")
-			get_tree().input_event(event)
-			event.pressed = false
-			Input.action_release("ui_focus_prev")
-			get_tree().input_event(event)
-			return
+	_send_via_keyboard("ui_focus_prev")
 
 
 func swipe_right():
@@ -178,10 +192,56 @@ var explore_by_touch = false
 
 var tap_count = 0
 
+var focus_mode = false
+var in_focus_mode_handler = false
+
 
 func _input(event):
 	if not enabled:
 		return
+	if enable_focus_mode:
+		if (
+			event is InputEventKey
+			and Input.is_key_pressed(KEY_ESCAPE)
+			and Input.is_key_pressed(KEY_CONTROL)
+			and not event.echo
+		):
+			get_tree().set_input_as_handled()
+			if focus_mode:
+				focus_mode = false
+				TTS.speak("UI mode", true)
+				return
+			else:
+				focus_mode = true
+				TTS.speak("Focus mode", true)
+				return
+		if focus_mode:
+			if (
+				Input.is_action_just_pressed("ui_left")
+				or Input.is_action_just_pressed("ui_right")
+				or Input.is_action_just_pressed("ui_up")
+				or Input.is_action_just_pressed("ui_down")
+				or Input.is_action_just_pressed("ui_focus_next")
+				or Input.is_action_just_pressed("ui_focus_prev")
+			):
+				if in_focus_mode_handler:
+					return
+				in_focus_mode_handler = true
+				if Input.is_action_just_pressed("ui_left"):
+					_ui_left()
+				elif Input.is_action_just_pressed("ui_right"):
+					_ui_right()
+				elif Input.is_action_just_pressed("ui_up"):
+					_ui_up()
+				elif Input.is_action_just_pressed("ui_down"):
+					_ui_down()
+				elif Input.is_action_just_pressed("ui_focus_prev"):
+					_ui_focus_prev()
+				elif Input.is_action_just_pressed("ui_focus_next"):
+					_press_and_release("ui_focus_next")
+				get_tree().set_input_as_handled()
+				in_focus_mode_handler = false
+				return
 	if event is InputEventScreenTouch:
 		get_tree().set_input_as_handled()
 		if touch_index and event.index != touch_index:
@@ -234,7 +294,7 @@ func _process(delta):
 	):
 		touch_stop_time = null
 		if tap_count == 2:
-			press_and_release("ui_accept")
+			_press_and_release("ui_accept")
 		tap_count = 0
 	if focus_restore_timer and focus_restore_timer.time_left <= 0:
 		var focus = find_focusable_control(get_tree().root)
