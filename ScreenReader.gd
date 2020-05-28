@@ -28,7 +28,8 @@ func _set_enabled(v):
 	if enabled:
 		augment_tree(get_tree().root)
 	else:
-		pass
+		for accessible in get_tree().get_nodes_in_group("accessibles"):
+			accessible.queue_free()
 	enabled = v
 
 
