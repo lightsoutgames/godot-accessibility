@@ -18,8 +18,9 @@ func _enter_tree():
 		rate = config.get_value("speech", "rate", 50)
 	add_autoload_singleton("TTS", "res://addons/godot-tts/TTS.gd")
 	if editor_accessibility_enabled:
-		TTS.call_deferred("set_rate", rate)
+		TTS.call_deferred("_set_rate", rate)
 		screen_reader = ScreenReader.new()
+		screen_reader.enable_focus_mode = true
 		get_tree().root.call_deferred("add_child", screen_reader)
 		call_deferred("connect", "scene_changed", screen_reader, "set_initial_scene_focus")
 		call_deferred("connect", "main_screen_changed", screen_reader, "set_initial_screen_focus")
