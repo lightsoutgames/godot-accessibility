@@ -208,7 +208,7 @@ func _input(event):
 		if (
 			event is InputEventKey
 			and Input.is_key_pressed(KEY_ESCAPE)
-			and Input.is_key_pressed(KEY_CONTROL)
+			and Input.is_key_pressed(KEY_SHIFT)
 			and not event.echo
 		):
 			get_tree().set_input_as_handled()
