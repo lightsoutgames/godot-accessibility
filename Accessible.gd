@@ -572,20 +572,15 @@ func focused():
 	spoke_hint_tooltip = false
 
 
-var timer
-
-
 func unfocused():
 	print_debug("Unfocused")
 	position_in_children = 0
-	timer = node.get_tree().create_timer(1)
 
 
 func click_focused():
 	if node.has_focus():
 		return
 	if node.focus_mode == Control.FOCUS_ALL:
-		print_debug("Grabbing focus: %s" % node)
 		node.grab_focus()
 
 
@@ -733,17 +728,3 @@ func _init(node):
 		else:
 			node.connect("item_selected", self, "tree_item_selected")
 	node.connect("tree_exiting", self, "queue_free", [], Object.CONNECT_DEFERRED)
-
-
-func _process(delta):
-	if timer and timer.time_left <= 0:
-		if node.is_inside_tree() and not node.get_focus_owner():
-			node.get_tree().root.warp_mouse(node.rect_global_position)
-			timer = null
-
-
-func free():
-	if timer:
-		timer.unreference()
-		timer = null
-	.free()
