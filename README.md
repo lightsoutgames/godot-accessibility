@@ -66,9 +66,7 @@ Here are some issues that I know about now, along with recommended workarounds w
 
 ### Tab and Shift-tab stop working.
 
-If focus ever lands outside of a UI widget, Tab and Shift-tab will stop working because there is no focused control from which to find a new focus candidate. I have some defensive code in place to recover from this sometimes, but it still happens on occasion. Save often.
-
-This often happens if I run a game from within the editor, then exit the game. Focus seems to land somewhere outside of a control and can't be restored, and my defensive code doesn't kick in.
+If focus ever lands outside of a UI widget, Tab and Shift-tab will stop working because there is no focused control from which to find a new focus candidate. This used to happen lots in the editor, but seems to have gone away. Game UIs should be explicit about setting an initial focus when transitioning between screens.
 
 ### File navigation is confusing.
 
