@@ -331,33 +331,47 @@ func text_edit_input(event):
 	pass
 
 
-func tree_item_render():
-	var focused_tree_item = node.get_selected()
+var _last_tree_item_tokens
+
+
+func _tree_item_render():
+	if not node.has_focus():
+		return
+	var cell = node.get_selected()
 	var tokens = PoolStringArray([])
 	for i in range(node.columns):
-		tokens.append(focused_tree_item.get_text(i))
-	if focused_tree_item.get_children():
-		if focused_tree_item.collapsed:
+		if node.select_mode == Tree.SELECT_MULTI or cell.is_selected(i):
+			var title = node.get_column_title(i)
+			if title:
+				tokens.append(title)
+			var column_text = cell.get_text(i)
+			if column_text:
+				tokens.append(column_text)
+			var button_count = cell.get_button_count(i)
+			if button_count != 0:
+				button_index = 0
+				tokens.append(
+					(
+						str(button_count)
+						+ " "
+						+ TTS.singular_or_plural(button_count, "button", "buttons")
+					)
+				)
+				var button_tooltip = cell.get_button_tooltip(i, button_index)
+				if button_tooltip:
+					tokens.append(button_tooltip)
+					tokens.append("button")
+				if button_count > 1:
+					tokens.append("Use Home and End to switch focus.")
+	if cell.get_children():
+		if cell.collapsed:
 			tokens.append("collapsed")
 		else:
 			tokens.append("expanded")
 	tokens.append("tree item")
-	if focused_tree_item.is_selected(0):
-		tokens.append("selected")
-	TTS.speak(tokens.join(": "), true)
-
-
-func tree_item_deselect_all(item: TreeItem):
-	for i in range(node.columns):
-		item.deselect(i)
-
-
-func tree_deselect_all_but(target: TreeItem, tree: Tree):
-	var cur = tree.get_root()
-	while cur != null:
-		if cur != target:
-			tree_item_deselect_all(cur)
-		cur = tree.get_next_selected(cur)
+	if tokens != _last_tree_item_tokens:
+		TTS.speak(tokens.join(": "), true)
+	_last_tree_item_tokens = tokens
 
 
 var prev_selected_cell
@@ -365,44 +379,9 @@ var prev_selected_cell
 var button_index
 
 
-func tree_item_selected():
+func _tree_item_or_cell_selected():
 	button_index = null
-	var cell = node.get_selected()
-	if cell != prev_selected_cell:
-		if node.select_mode == Tree.SELECT_MULTI:
-			cell.select(0)
-			tree_deselect_all_but(cell, node)
-		if node.has_focus():
-			tree_item_render()
-		prev_selected_cell = cell
-	else:
-		var tokens = PoolStringArray([])
-		for i in range(node.columns):
-			if cell.is_selected(i):
-				var title = node.get_column_title(i)
-				if title:
-					tokens.append(title)
-				var column_text = cell.get_text(i)
-				if column_text:
-					tokens.append(column_text)
-				var button_count = cell.get_button_count(i)
-				if button_count != 0:
-					button_index = 0
-					tokens.append(
-						(
-							str(button_count)
-							+ " "
-							+ TTS.singular_or_plural(button_count, "button", "buttons")
-						)
-					)
-					if cell.has_method("get_button_tooltip"):
-						var button_tooltip = cell.get_button_tooltip(i, button_index)
-						if button_tooltip:
-							tokens.append(button_tooltip)
-							tokens.append("button")
-						if button_count > 1:
-							tokens.append("Use Home and End to switch focus.")
-		TTS.speak(tokens.join(": "), true)
+	_tree_item_render()
 
 
 func tree_item_multi_selected(item, column, selected):
@@ -412,7 +391,9 @@ func tree_item_multi_selected(item, column, selected):
 		TTS.speak("unselected", true)
 
 
-func tree_input(event):
+func _tree_input(event):
+	if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down"):
+		node.accept_event()
 	var item = node.get_selected()
 	var column
 	if item:
@@ -431,7 +412,7 @@ func tree_input(event):
 			node.rect_global_position.y + area.position.y + area.size.y / 2
 		)
 		node.get_tree().root.warp_mouse(position)
-	if item and column and button_index != null:
+	if item and column != null and button_index != null:
 		if event.is_action_pressed("ui_accept"):
 			node.accept_event()
 			return node.emit_signal("button_pressed", item, column, button_index + 1)
@@ -457,18 +438,29 @@ func tree_input(event):
 
 
 func tree_focused():
+	_last_tree_item_tokens = null
 	if node.get_selected():
-		tree_item_render()
+		_tree_item_render()
 	else:
 		TTS.speak("tree", true)
 
 
-func tree_item_collapsed(item):
+var _was_collapsed
+
+
+func _tree_item_collapsed(item):
 	if node.has_focus():
-		if item.collapsed:
-			TTS.speak("collapsed", true)
-		else:
-			TTS.speak("expanded", true)
+		var selected = false
+		for column in range(node.columns):
+			if item.is_selected(column):
+				selected = true
+				break
+		if selected and item.collapsed != _was_collapsed:
+			if item.collapsed:
+				TTS.speak("collapsed", true)
+			else:
+				TTS.speak("expanded", true)
+	_was_collapsed = item.collapsed
 
 
 func progress_bar_focused():
@@ -605,14 +597,7 @@ func gui_input(event):
 	elif node is TextEdit:
 		return text_edit_input(event)
 	elif node is Tree:
-		if (
-			event.is_action_pressed("ui_up")
-			or event.is_action_pressed("ui_down")
-			or event.is_action_pressed("ui_left")
-			or event.is_action_pressed("ui_right")
-		):
-			node.accept_event()
-		return tree_input(event)
+		return _tree_input(event)
 	elif node.is_class("EditorInspectorSection"):
 		return editor_inspector_section_input(event)
 
@@ -721,10 +706,10 @@ func _init(node):
 	elif node is TabContainer:
 		node.connect("tab_changed", self, "tab_container_tab_changed")
 	elif node is Tree:
-		node.connect("item_collapsed", self, "tree_item_collapsed")
+		node.connect("item_collapsed", self, "_tree_item_collapsed")
 		node.connect("multi_selected", self, "tree_item_multi_selected")
 		if node.select_mode == Tree.SELECT_MULTI:
-			node.connect("cell_selected", self, "tree_item_selected")
+			node.connect("cell_selected", self, "_tree_item_or_cell_selected")
 		else:
-			node.connect("item_selected", self, "tree_item_selected")
+			node.connect("item_selected", self, "_tree_item_or_cell_selected")
 	node.connect("tree_exiting", self, "queue_free", [], Object.CONNECT_DEFERRED)
