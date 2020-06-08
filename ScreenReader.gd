@@ -111,6 +111,7 @@ func set_initial_scene_focus(scene):
 
 
 func _enter_tree():
+	pause_mode = Node.PAUSE_MODE_PROCESS
 	if enabled:
 		augment_tree(get_tree().root)
 	get_tree().connect("node_added", self, "augment_node")
