@@ -349,6 +349,11 @@ func _tree_item_render():
 			var column_text = cell.get_text(i)
 			if column_text:
 				tokens.append(column_text)
+			if cell.get_children():
+				if cell.collapsed:
+					tokens.append("collapsed")
+				else:
+					tokens.append("expanded")
 			var button_count = cell.get_button_count(i)
 			if button_count != 0:
 				button_index = 0
@@ -365,11 +370,6 @@ func _tree_item_render():
 					tokens.append("button")
 				if button_count > 1:
 					tokens.append("Use Home and End to switch focus.")
-	if cell.get_children():
-		if cell.collapsed:
-			tokens.append("collapsed")
-		else:
-			tokens.append("expanded")
 	tokens.append("tree item")
 	if tokens != _last_tree_item_tokens:
 		TTS.speak(tokens.join(": "), true)
