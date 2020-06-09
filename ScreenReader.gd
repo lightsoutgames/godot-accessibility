@@ -269,7 +269,7 @@ func _input(event):
 			touch_position = event.position
 			touch_start_time = OS.get_ticks_msec()
 			touch_stop_time = null
-		else:
+		elif touch_position:
 			touch_index = null
 			var relative = event.position - touch_position
 			if relative.length() < min_swipe_distance:
