@@ -135,8 +135,10 @@ func _press_and_release(action, fake_via_keyboard = false):
 	var event = InputEventAction.new()
 	event.action = action
 	event.pressed = true
+	Input.action_press(action)
 	get_tree().input_event(event)
 	event.pressed = false
+	Input.action_release(action)
 	get_tree().input_event(event)
 
 
