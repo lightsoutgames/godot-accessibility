@@ -179,11 +179,21 @@ func swipe_left():
 
 
 func swipe_up():
-	TTS.speak("Swipe up")
+	var focus = find_focusable_control(get_tree().root)
+	if focus:
+		focus = focus.get_focus_owner()
+		if focus:
+			if focus is Range:
+				_press_and_release("ui_right")
 
 
 func swipe_down():
-	TTS.speak("Swipe down")
+	var focus = find_focusable_control(get_tree().root)
+	if focus:
+		focus = focus.get_focus_owner()
+		if focus:
+			if focus is Range:
+				_press_and_release("ui_left")
 
 
 var touch_index = null

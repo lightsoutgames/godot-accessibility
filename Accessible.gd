@@ -306,6 +306,8 @@ func range_focused():
 		tokens.append("range")
 	tokens.append("minimum %s" % node.min_value)
 	tokens.append("maximum %s" % node.max_value)
+	if OS.has_touchscreen_ui_hint():
+		tokens.append("Swipe up and down to change.")
 	TTS.speak(tokens.join(": "), false)
 
 
