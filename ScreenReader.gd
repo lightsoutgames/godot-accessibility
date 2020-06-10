@@ -21,8 +21,6 @@ export var explore_by_touch_interval = 200
 
 export var enable_focus_mode = false
 
-var focus_restore_timer
-
 
 func _set_enabled(v):
 	if enabled:
@@ -37,31 +35,11 @@ func _get_enabled():
 	return enabled
 
 
-func focused(node):
-	focus_restore_timer = null
-
-
-func click_focused(node):
-	pass
-
-
-func unfocused(node):
-	focus_restore_timer = get_tree().create_timer(0.2)
-
-
 func augment_node(node):
 	if not enabled:
 		return
 	if node is Control:
 		Accessible.new(node)
-		if not node.is_connected("focus_entered", self, "focused"):
-			node.connect("focus_entered", self, "focused", [node])
-		if not node.is_connected("mouse_entered", self, "click_focused"):
-			node.connect("mouse_entered", self, "click_focused", [node])
-		if not node.is_connected("focus_exited", self, "unfocused"):
-			node.connect("focus_exited", self, "unfocused", [node])
-		if not node.is_connected("mouse_exited", self, "unfocused"):
-			node.connect("mouse_exited", self, "unfocused", [node])
 
 
 func augment_tree(node):
@@ -76,18 +54,18 @@ func augment_tree(node):
 
 func set_initial_screen_focus(screen):
 	TTS.speak("%s: screen" % screen, false)
-	var control = find_focusable_control(get_tree().root)
+	var control = _find_focusable_control(get_tree().root)
 	if control.get_focus_owner() != null:
 		return
 	self.augment_tree(get_tree().root)
-	var focus = find_focusable_control(get_tree().root)
+	var focus = _find_focusable_control(get_tree().root)
 	if not focus:
 		return
 	focus.grab_click_focus()
 	focus.grab_focus()
 
 
-func find_focusable_control(node):
+func _find_focusable_control(node):
 	if (
 		node is Control
 		and node.is_visible_in_tree()
@@ -95,7 +73,7 @@ func find_focusable_control(node):
 	):
 		return node
 	for child in node.get_children():
-		var result = find_focusable_control(child)
+		var result = _find_focusable_control(child)
 		if result:
 			return result
 	return null
@@ -103,7 +81,7 @@ func find_focusable_control(node):
 
 func set_initial_scene_focus(scene):
 	self.augment_tree(get_tree().root)
-	var focus = find_focusable_control(get_tree().root)
+	var focus = _find_focusable_control(get_tree().root)
 	if not focus:
 		return
 	focus.grab_click_focus()
@@ -181,7 +159,7 @@ func swipe_left():
 
 
 func swipe_up():
-	var focus = find_focusable_control(get_tree().root)
+	var focus = _find_focusable_control(get_tree().root)
 	if focus:
 		focus = focus.get_focus_owner()
 		if focus:
@@ -190,7 +168,7 @@ func swipe_up():
 
 
 func swipe_down():
-	var focus = find_focusable_control(get_tree().root)
+	var focus = _find_focusable_control(get_tree().root)
 	if focus:
 		focus = focus.get_focus_owner()
 		if focus:
@@ -314,9 +292,3 @@ func _process(delta):
 		if tap_count == 2:
 			_press_and_release("ui_accept")
 		tap_count = 0
-	if focus_restore_timer and focus_restore_timer.time_left <= 0:
-		var focus = find_focusable_control(get_tree().root)
-		if focus and not focus.get_focus_owner():
-			print_debug("Restoring focus.")
-			focus.grab_focus()
-			focus.grab_click_focus()

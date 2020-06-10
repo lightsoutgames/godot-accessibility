@@ -29,3 +29,22 @@ func _enter_tree():
 
 func _exit_tree():
 	remove_custom_type("ScreenReader")
+
+
+var _focus_loss_interval = 0
+
+
+func _process(delta):
+	if not screen_reader.enabled:
+		return
+	var focus = screen_reader._find_focusable_control(get_tree().root)
+	focus = focus.get_focus_owner()
+	if focus:
+		_focus_loss_interval = 0
+	else:
+		_focus_loss_interval += delta
+		if _focus_loss_interval >= 0.2:
+			_focus_loss_interval = 0
+			focus = screen_reader._find_focusable_control(get_tree().root)
+			focus.grab_focus()
+			focus.grab_click_focus()
