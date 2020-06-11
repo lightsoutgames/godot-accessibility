@@ -567,7 +567,6 @@ func focused():
 
 
 func unfocused():
-	print_debug("Unfocused")
 	position_in_children = 0
 
 
