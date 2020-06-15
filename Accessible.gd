@@ -68,6 +68,8 @@ func _accept_dialog_about_to_show():
 
 func checkbox_focused():
 	var tokens = PoolStringArray([])
+	if node.text:
+		tokens.append(node.text)
 	if node.pressed:
 		tokens.append("checked")
 	else:
@@ -76,7 +78,7 @@ func checkbox_focused():
 	TTS.speak(tokens.join(" "), false)
 
 
-func checkbox_toggled(checked):
+func _checkbox_or_checkbutton_toggled(checked):
 	if node.has_focus():
 		if checked:
 			TTS.speak("checked", true)
@@ -84,10 +86,22 @@ func checkbox_toggled(checked):
 			TTS.speak("unchecked", true)
 
 
+func _checkbutton_focused():
+	var tokens = PoolStringArray([])
+	if node.text:
+		tokens.append(node.text)
+	if node.pressed:
+		tokens.append("checked")
+	else:
+		tokens.append("unchecked")
+	tokens.append(" check button")
+	TTS.speak(tokens.join(" "), false)
+
+
 var spoke_hint_tooltip
 
 
-func button_focused():
+func _button_focused():
 	var tokens = PoolStringArray([])
 	if node.text:
 		tokens.append(node.text)
@@ -532,8 +546,10 @@ func focused():
 		accept_dialog_focused()
 	elif node is CheckBox:
 		checkbox_focused()
+	elif node is CheckButton:
+		_checkbutton_focused()
 	elif node is Button:
-		button_focused()
+		_button_focused()
 	elif node.is_class("EditorInspectorSection"):
 		editor_inspector_section_focused()
 	elif node is ItemList:
@@ -543,7 +559,7 @@ func focused():
 	elif node is LineEdit:
 		line_edit_focused()
 	elif node is LinkButton:
-		button_focused()
+		_button_focused()
 	elif node is PopupMenu:
 		popup_menu_focused()
 	elif node is ProgressBar:
@@ -689,8 +705,8 @@ func _init(node):
 	node.connect("gui_input", self, "gui_input")
 	if node is AcceptDialog:
 		node.connect("about_to_show", self, "_accept_dialog_about_to_show")
-	elif node is CheckBox:
-		node.connect("toggled", self, "checkbox_toggled")
+	elif node is CheckBox or node is CheckButton:
+		node.connect("toggled", self, "_checkbox_or_checkbutton_toggled")
 	elif node is ItemList:
 		node.connect("item_selected", self, "item_list_item_selected")
 		node.connect("multi_selected", self, "item_list_multi_selected")
