@@ -19,23 +19,32 @@ Anecdotally, I've learned that building games with Godot is not only possible, b
 There is an [accessible starter project](https://github.com/lightsoutgames/godot-accessible-starter) that does most of this for you, and sets up a basic project with an in-game screen reader and editor accessibility. But here are the steps from an empty Godot project:
 
 1. Place this repository in a directory named _addons/godot-accessibility_ inside your project. This plugins root directory should be reachable at the Godot path _res://addons/godot-accessibility_.
-2. Download the [latest release of the Godot TTS addon](https://github.com/lightsoutgames/godot-tts/releases) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
-3. Enable the Godot Accessibility plugin from the editor UI. Or, if you have a _project.godot_ file, ensure that you have a section like:
-```
-[editor_plugins]
 
-enabled=[ "godot-accessibility" ]
-```
-4. Optionally, configure the plugin by creating a file named _.godot-accessibility-editor-settings.ini_ in your project directory. This file is entirely optional, and defaults ar shown below:
-```
-[global]
-editor_accessibility__enabled = true ; Set to false if you'd like this plugin's accessibility nodes but don't need editor speech, good for sighted collaborators.
-[speech]
-rate = 50 ; range is 0 to 100.
-```
-This file shouldn't be checked into version control, so add it to your ignore patterns.
+2. Download the [latest release of the Godot TTS addon](https://github.com/lightsoutgames/godot-tts/releases) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
+
+3. Enable the Godot Accessibility plugin from the editor UI. Or, if you have a _project.godot_ file, ensure that you have a section like:
+
+    ```ini
+    [editor_plugins]
+    
+    enabled=[ "godot-accessibility" ]
+    ```
+
+4. Optionally, configure the plugin by creating a file named _.godot-accessibility-editor-settings.ini_ in your project directory. This file is entirely optional, and defaults are shown below:
+
+    ```ini
+    [global]
+    editor_accessibility__enabled = true ; Set to false if you'd like this plugin's accessibility nodes but don't need editor speech, good for sighted collaborators.
+    [speech]
+    rate = 50 ; range is 0 to 100.
+    ```
+
+    This file shouldn't be checked into version control, so add it to your ignore patterns.
+
 5. Optionally, set up Android TTS. After performing [Android export setup](https://docs.godotengine.org/en/3.2/getting_started/workflow/export/exporting_for_android.html) and downloading templates, click _Project -> Install Android Build Template_. Copy, or link, _addons/godot-tts/android_ to _android/godot-tts_.
+
 6. Perform the below Windows-only procedure if you would prefer that editor speech be done with your screen reader. Note that these steps aren't necessary if all you want is speech in exports.
+
 7. Launch your project in the editor by running `godot -e` in the top-level directory. Or, to launch the game normally, simply run `godot`.
 
 Windows-only: If you need speech in the editor and would prefer to use your screen reader, please perform the following additional steps:
