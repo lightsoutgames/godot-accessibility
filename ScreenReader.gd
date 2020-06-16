@@ -79,15 +79,6 @@ func _find_focusable_control(node):
 	return null
 
 
-func set_initial_scene_focus(scene):
-	self.augment_tree(get_tree().root)
-	var focus = _find_focusable_control(get_tree().root)
-	if not focus:
-		return
-	focus.grab_click_focus()
-	focus.grab_focus()
-
-
 func _enter_tree():
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	if enabled:
