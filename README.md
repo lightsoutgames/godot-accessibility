@@ -34,8 +34,11 @@ editor_accessibility__enabled = true ; Set to false if you'd like this plugin's 
 rate = 50 ; range is 0 to 100.
 ```
 This file shouldn't be checked into version control, so add it to your ignore patterns.
+
 5. Optionally, set up Android TTS. After performing [Android export setup](https://docs.godotengine.org/en/3.2/getting_started/workflow/export/exporting_for_android.html) and downloading templates, click _Project -> Install Android Build Template_. Copy, or link, _addons/godot-tts/android_ to _android/godot-tts_.
+
 6. Perform the below Windows-only procedure if you would prefer that editor speech be done with your screen reader. Note that these steps aren't necessary if all you want is speech in exports.
+
 7. Launch your project in the editor by running `godot -e` in the top-level directory. Or, to launch the game normally, simply run `godot`.
 
 Windows-only: If you need speech in the editor and would prefer to use your screen reader, please perform the following additional steps:
