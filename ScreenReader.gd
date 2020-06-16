@@ -52,20 +52,7 @@ func augment_tree(node):
 		augment_tree(child)
 
 
-func set_initial_screen_focus(screen):
-	TTS.speak("%s: screen" % screen, false)
-	var control = _find_focusable_control(get_tree().root)
-	if control.get_focus_owner() != null:
-		return
-	self.augment_tree(get_tree().root)
-	var focus = _find_focusable_control(get_tree().root)
-	if not focus:
-		return
-	focus.grab_click_focus()
-	focus.grab_focus()
-
-
-func _find_focusable_control(node):
+func find_focusable_control(node):
 	if (
 		node is Control
 		and node.is_visible_in_tree()
@@ -73,7 +60,7 @@ func _find_focusable_control(node):
 	):
 		return node
 	for child in node.get_children():
-		var result = _find_focusable_control(child)
+		var result = find_focusable_control(child)
 		if result:
 			return result
 	return null
@@ -150,7 +137,7 @@ func swipe_left():
 
 
 func swipe_up():
-	var focus = _find_focusable_control(get_tree().root)
+	var focus = find_focusable_control(get_tree().root)
 	if focus:
 		focus = focus.get_focus_owner()
 		if focus:
@@ -159,7 +146,7 @@ func swipe_up():
 
 
 func swipe_down():
-	var focus = _find_focusable_control(get_tree().root)
+	var focus = find_focusable_control(get_tree().root)
 	if focus:
 		focus = focus.get_focus_owner()
 		if focus:
