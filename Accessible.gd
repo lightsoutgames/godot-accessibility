@@ -28,7 +28,9 @@ func click(item := node, button_index = BUTTON_LEFT):
 	node.get_tree().input_event(click)
 
 
-func guess_label():
+func _guess_label():
+	if node is Label:
+		return
 	var tokens = PoolStringArray([])
 	var to_check = node
 	while to_check:
@@ -534,7 +536,7 @@ func focused():
 	print_debug("Focus: %s" % node)
 	TTS.stop()
 	if not node is Label:
-		var label = guess_label()
+		var label = _guess_label()
 		if label:
 			if label is Label:
 				label = label.text
@@ -619,17 +621,7 @@ func gui_input(event):
 		return editor_inspector_section_input(event)
 
 
-func is_in_bar():
-	var parent = node.get_parent()
-	if parent and parent is Container:
-		for child in parent.get_children():
-			if child and not is_focusable(child):
-				return false
-		return true
-	return false
-
-
-func is_focusable(node):
+func _is_focusable(node):
 	if node.is_class("SceneTreeEditor"):
 		return false
 	if node.is_class("MultiMeshEditor"):
@@ -693,9 +685,9 @@ func _init(node):
 	add_to_group("accessibles")
 	node.add_child(self)
 	self.node = node
-	if is_focusable(node):
+	if _is_focusable(node):
 		node.set_focus_mode(Control.FOCUS_ALL)
-	var label = guess_label()
+	var label = _guess_label()
 	if label and label is Label:
 		label.set_focus_mode(Control.FOCUS_NONE)
 	node.connect("focus_entered", self, "focused")
