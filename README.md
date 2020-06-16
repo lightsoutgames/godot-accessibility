@@ -26,7 +26,7 @@ There is an [accessible starter project](https://github.com/lightsoutgames/godot
 
 enabled=[ "godot-accessibility" ]
 ```
-4. Optionally, configure the plugin by creating a file named _.godot-accessibility-editor-settings.ini_ in your project directory. This file is entirely optional, and defaults ar shown below:
+4. Optionally, configure the plugin by creating a file named _.godot-accessibility-editor-settings.ini_ in your project directory. This file is entirely optional, and defaults are shown below:
 ```
 [global]
 editor_accessibility__enabled = true ; Set to false if you'd like this plugin's accessibility nodes but don't need editor speech, good for sighted collaborators.
