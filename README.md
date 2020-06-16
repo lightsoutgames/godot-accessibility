@@ -19,13 +19,17 @@ Anecdotally, I've learned that building games with Godot is not only possible, b
 There is an [accessible starter project](https://github.com/lightsoutgames/godot-accessible-starter) that does most of this for you, and sets up a basic project with an in-game screen reader and editor accessibility. But here are the steps from an empty Godot project:
 
 1. Place this repository in a directory named _addons/godot-accessibility_ inside your project. This plugins root directory should be reachable at the Godot path _res://addons/godot-accessibility_.
-2. Download the [latest release of the Godot TTS addon](https://github.com/lightsoutgames/godot-tts/releases) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
-3. Enable the Godot Accessibility plugin from the editor UI. Or, if you have a _project.godot_ file, ensure that you have a section like:
-```
-[editor_plugins]
 
-enabled=[ "godot-accessibility" ]
-```
+2. Download the [latest release of the Godot TTS addon](https://github.com/lightsoutgames/godot-tts/releases) and place its files in _addons/godot-tts_. When complete, you should have paths like _addons/godot-tts/TTS.gd_.
+
+3. Enable the Godot Accessibility plugin from the editor UI. Or, if you have a _project.godot_ file, ensure that you have a section like:
+
+    ```
+    [editor_plugins]
+    
+    enabled=[ "godot-accessibility" ]
+    ```
+
 4. Optionally, configure the plugin by creating a file named _.godot-accessibility-editor-settings.ini_ in your project directory. This file is entirely optional, and defaults are shown below:
 ```
 [global]
