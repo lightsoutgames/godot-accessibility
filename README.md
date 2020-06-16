@@ -31,13 +31,15 @@ There is an [accessible starter project](https://github.com/lightsoutgames/godot
     ```
 
 4. Optionally, configure the plugin by creating a file named _.godot-accessibility-editor-settings.ini_ in your project directory. This file is entirely optional, and defaults are shown below:
-```
-[global]
-editor_accessibility__enabled = true ; Set to false if you'd like this plugin's accessibility nodes but don't need editor speech, good for sighted collaborators.
-[speech]
-rate = 50 ; range is 0 to 100.
-```
-This file shouldn't be checked into version control, so add it to your ignore patterns.
+
+    ```
+    [global]
+    editor_accessibility__enabled = true ; Set to false if you'd like this plugin's accessibility nodes but don't need editor speech, good for sighted collaborators.
+    [speech]
+    rate = 50 ; range is 0 to 100.
+    ```
+
+    This file shouldn't be checked into version control, so add it to your ignore patterns.
 
 5. Optionally, set up Android TTS. After performing [Android export setup](https://docs.godotengine.org/en/3.2/getting_started/workflow/export/exporting_for_android.html) and downloading templates, click _Project -> Install Android Build Template_. Copy, or link, _addons/godot-tts/android_ to _android/godot-tts_.
 
