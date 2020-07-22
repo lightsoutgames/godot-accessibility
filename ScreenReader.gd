@@ -173,6 +173,18 @@ var in_focus_mode_handler = false
 func _input(event):
 	if not enabled:
 		return
+	var focus = find_focusable_control(get_tree().root)
+	if focus:
+		focus = focus.get_focus_owner()
+		if focus is Tree and Input.is_action_just_pressed("ui_accept"):
+			var accessible
+			for n in focus.get_children():
+				if n is Accessible:
+					accessible = n
+					break
+			if accessible and accessible.button_index != null:
+				accessible._tree_input(event)
+				get_tree().set_input_as_handled()
 	if enable_focus_mode:
 		if (
 			event is InputEventKey

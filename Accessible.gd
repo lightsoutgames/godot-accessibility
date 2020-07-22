@@ -351,6 +351,8 @@ func text_edit_input(event):
 
 var _last_tree_item_tokens
 
+var button_index
+
 
 func _tree_item_render():
 	if not node.has_focus():
@@ -372,7 +374,15 @@ func _tree_item_render():
 					tokens.append("expanded")
 			var button_count = cell.get_button_count(i)
 			if button_count != 0:
-				button_index = 0
+				var column
+				for j in range(node.columns):
+					if cell.is_selected(j):
+						column = j
+						break
+				if column == i:
+					button_index = 0
+				else:
+					button_index = null
 				tokens.append(
 					(
 						str(button_count)
@@ -380,12 +390,13 @@ func _tree_item_render():
 						+ TTS.singular_or_plural(button_count, "button", "buttons")
 					)
 				)
-				var button_tooltip = cell.get_button_tooltip(i, button_index)
-				if button_tooltip:
-					tokens.append(button_tooltip)
-					tokens.append("button")
-				if button_count > 1:
-					tokens.append("Use Home and End to switch focus.")
+				if button_index != null:
+					var button_tooltip = cell.get_button_tooltip(i, button_index)
+					if button_tooltip:
+						tokens.append(button_tooltip)
+						tokens.append("button")
+					if button_count > 1:
+						tokens.append("Use Home and End to switch focus.")
 	tokens.append("tree item")
 	if tokens != _last_tree_item_tokens:
 		TTS.speak(tokens.join(": "), true)
@@ -393,8 +404,6 @@ func _tree_item_render():
 
 
 var prev_selected_cell
-
-var button_index
 
 
 func _tree_item_or_cell_selected():
@@ -430,8 +439,8 @@ func _tree_input(event):
 			node.rect_global_position.y + area.position.y + area.size.y / 2
 		)
 		node.get_tree().root.warp_mouse(position)
-	if item and column != null and button_index != null:
-		if event.is_action_pressed("ui_accept"):
+	if item and column != null and item.get_button_count(column):
+		if Input.is_action_just_pressed("ui_accept"):
 			node.accept_event()
 			return node.emit_signal("button_pressed", item, column, button_index + 1)
 		var new_button_index = button_index
