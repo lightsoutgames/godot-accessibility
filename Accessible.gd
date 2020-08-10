@@ -54,8 +54,7 @@ func _guess_label():
 
 func _accept_dialog_speak():
 	if node.dialog_text != "":
-		print("Speaking %s" % node.dialog_text)
-		TTS.speak("dialog: %s" % node.dialog_text, false)
+		TTS.speak("dialog: %s" % node.dialog_text)
 
 
 func accept_dialog_focused():
@@ -66,7 +65,6 @@ func accept_dialog_focused():
 
 
 func _accept_dialog_about_to_show():
-	print("About to show")
 	_accept_dialog_speak()
 
 
@@ -545,6 +543,7 @@ func tab_container_input(event):
 
 func focused():
 	print_debug("Focus: %s" % node)
+	TTS.stop()
 	if not node is Label:
 		var label = _guess_label()
 		if label:
@@ -606,8 +605,6 @@ func click_focused():
 
 
 func gui_input(event):
-	if event is InputEventKey and event.pressed:
-		TTS.stop()
 	if (
 		event is InputEventKey
 		and Input.is_action_just_pressed("ui_accept")
