@@ -21,6 +21,7 @@ export var explore_by_touch_interval = 200
 
 export var enable_focus_mode = false
 
+var should_stop_on_focus = true
 
 func _set_enabled(v):
 	if enabled:

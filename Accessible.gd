@@ -54,7 +54,7 @@ func _guess_label():
 
 func _accept_dialog_speak():
 	if node.dialog_text != "":
-		TTS.speak("dialog: %s" % node.dialog_text)
+		TTS.speak("dialog: %s" % node.dialog_text, false)
 
 
 func accept_dialog_focused():
@@ -66,6 +66,7 @@ func accept_dialog_focused():
 
 func _accept_dialog_about_to_show():
 	_accept_dialog_speak()
+	ScreenReader.should_stop_on_focus = false
 
 
 func checkbox_focused():
@@ -543,7 +544,9 @@ func tab_container_input(event):
 
 func focused():
 	print_debug("Focus: %s" % node)
-	TTS.stop()
+	if ScreenReader.should_stop_on_focus:
+		TTS.stop()
+	ScreenReader.should_stop_on_focus = true
 	if not node is Label:
 		var label = _guess_label()
 		if label:
