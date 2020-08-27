@@ -69,7 +69,7 @@ func _accept_dialog_about_to_show():
 	ScreenReader.should_stop_on_focus = false
 
 
-func _basebutton_pressed():
+func _basebutton_button_down():
 	TTS.stop()
 
 
@@ -712,7 +712,7 @@ func _init(node):
 	node.connect("mouse_exited", self, "unfocused")
 	node.connect("gui_input", self, "gui_input")
 	if node is BaseButton:
-		node.connect("pressed", self, "_basebutton_pressed")
+		node.connect("button_down", self, "_basebutton_button_down")
 	if node is AcceptDialog:
 		node.connect("about_to_show", self, "_accept_dialog_about_to_show")
 	elif node is CheckBox or node is CheckButton:
