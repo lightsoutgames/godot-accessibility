@@ -69,6 +69,10 @@ func _accept_dialog_about_to_show():
 	ScreenReader.should_stop_on_focus = false
 
 
+func _basebutton_pressed():
+	TTS.stop()
+
+
 func checkbox_focused():
 	var tokens = PoolStringArray([])
 	if node.text:
@@ -707,6 +711,8 @@ func _init(node):
 	node.connect("focus_exited", self, "unfocused")
 	node.connect("mouse_exited", self, "unfocused")
 	node.connect("gui_input", self, "gui_input")
+	if node is BaseButton:
+		node.connect("pressed", self, "_basebutton_pressed")
 	if node is AcceptDialog:
 		node.connect("about_to_show", self, "_accept_dialog_about_to_show")
 	elif node is CheckBox or node is CheckButton:
