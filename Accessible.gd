@@ -115,20 +115,43 @@ func _button_focused():
 	elif node.hint_tooltip:
 		spoke_hint_tooltip = true
 		tokens.append(node.hint_tooltip)
+	else:
+		tokens.append(get_graphical_button_text(node.icon))
 	tokens.append("button")
 	if node.disabled:
 		tokens.append("disabled")
 	TTS.speak(tokens.join(": "), false)
 
 
+func try_to_get_text_in_theme(theme, texture):
+	if theme == null:
+		return ""
+
+	for type in theme.get_type_list(""):
+		for icon in theme.get_icon_list(type):
+			var icon_texture = theme.get_icon(icon, type)
+			if icon_texture == texture:
+				return icon
+
+	return ""
+
+
+func get_graphical_button_text(texture):
+	var default_theme_copy = Theme.new()
+	default_theme_copy.copy_default_theme()
+	var current = node
+	while current != null:
+		var text = try_to_get_text_in_theme(current.theme, texture)
+		if text != "":
+			return text
+		current = current.get_parent_control()
+	return try_to_get_text_in_theme(default_theme_copy, texture)
+
 func texturebutton_focused():
-	var texture = node.texture_normal
-	print_debug(texture.resource_name)
-	print_debug(texture.resource_path)
-	var rid = texture.get_rid()
-	print_debug(rid)
-	print_debug(rid.get_id())
-	TTS.speak("button", false)
+	var tokens = PoolStringArray([])
+	tokens.append(get_graphical_button_text(node.texture_normal))
+	tokens.append("texture button")
+	TTS.speak(tokens.join(": "))
 
 
 func item_list_item_focused(idx):
