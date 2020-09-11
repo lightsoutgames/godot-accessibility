@@ -116,7 +116,7 @@ func _button_focused():
 		spoke_hint_tooltip = true
 		tokens.append(node.hint_tooltip)
 	else:
-		tokens.append(get_graphical_button_text(node.icon))
+		tokens.append(_get_graphical_button_text(node.icon))
 	tokens.append("button")
 	if node.disabled:
 		tokens.append("disabled")
@@ -136,7 +136,7 @@ func try_to_get_text_in_theme(theme, texture):
 	return ""
 
 
-func get_graphical_button_text(texture):
+func _get_graphical_button_text(texture):
 	var default_theme_copy = Theme.new()
 	default_theme_copy.copy_default_theme()
 	var current = node
@@ -147,10 +147,11 @@ func get_graphical_button_text(texture):
 		current = current.get_parent_control()
 	return try_to_get_text_in_theme(default_theme_copy, texture)
 
-func texturebutton_focused():
+
+func _texturebutton_focused():
 	var tokens = PoolStringArray([])
-	tokens.append(get_graphical_button_text(node.texture_normal))
-	tokens.append("texture button")
+	tokens.append(_get_graphical_button_text(node.texture_normal))
+	tokens.append("button")
 	TTS.speak(tokens.join(": "))
 
 
@@ -612,7 +613,7 @@ func focused():
 	elif node is TextEdit:
 		text_edit_focus()
 	elif node is TextureButton:
-		texturebutton_focused()
+		_texturebutton_focused()
 	elif node is Tree:
 		tree_focused()
 	else:
