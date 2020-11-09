@@ -31,6 +31,8 @@ func click(item := node, button_index = BUTTON_LEFT):
 func _guess_label():
 	if node is Label:
 		return
+	if node.has_property("text") and node.text:
+		return
 	var tokens = PoolStringArray([])
 	var to_check = node
 	while to_check:
