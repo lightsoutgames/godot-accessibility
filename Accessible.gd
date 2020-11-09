@@ -56,7 +56,7 @@ func _guess_label():
 
 func _accept_dialog_speak():
 	if node.dialog_text != "":
-		TTS.speak("dialog: %s" % node.dialog_text, false)
+		TTS.speak("Dialog: %s" % node.dialog_text, false)
 
 
 func accept_dialog_focused():
@@ -227,11 +227,15 @@ func item_list_input(event):
 		item_list_item_focused(position_in_children)
 
 
-func label_focused():
+func _label_focused():
+	var tokens = PoolStringArray([])
+	if node.get_parent() is WindowDialog:
+		tokens.append("Dialog")
 	var text = node.text
 	if text == "":
 		text = "blank"
-	TTS.speak(text, false)
+	tokens.append(text)
+	TTS.speak(tokens.join(": "), false)
 
 
 func line_edit_focused():
@@ -599,7 +603,7 @@ func focused():
 	elif node is ItemList:
 		item_list_focused()
 	elif node is Label or node is RichTextLabel:
-		label_focused()
+		_label_focused()
 	elif node is LineEdit:
 		line_edit_focused()
 	elif node is LinkButton:
