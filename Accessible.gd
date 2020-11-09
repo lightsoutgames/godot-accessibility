@@ -725,6 +725,7 @@ func editor_inspector_section_input(event):
 
 
 func _init(node):
+	name = "Accessible for " + node.name
 	if node.is_in_group("accessible"):
 		return
 	node.add_to_group("accessible")
