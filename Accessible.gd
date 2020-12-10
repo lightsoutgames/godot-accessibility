@@ -55,11 +55,20 @@ func _guess_label():
 
 
 func _accept_dialog_speak():
+	var text
 	if node.dialog_text != "":
-		TTS.speak("Dialog: %s" % node.dialog_text, false)
+		text = node.dialog_text
+	else:
+		for c in node.get_children():
+			if c is Label:
+				text = c.text
+	if text:
+		TTS.speak("Dialog: %s" % text, false)
+	else:
+		TTS.speak("Dialog", false)
 
 
-func accept_dialog_focused():
+func _accept_dialog_focused():
 	_accept_dialog_speak()
 	if node.get_parent() and node.get_parent().is_class("ProjectSettingsEditor"):
 		yield(node.get_tree().create_timer(5), "timeout")
@@ -591,7 +600,7 @@ func focused():
 	if node is MenuButton:
 		menu_button_focused()
 	elif node is AcceptDialog:
-		accept_dialog_focused()
+		_accept_dialog_focused()
 	elif node is CheckBox:
 		checkbox_focused()
 	elif node is CheckButton:
