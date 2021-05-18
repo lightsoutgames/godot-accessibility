@@ -1,6 +1,12 @@
 extends Node
 
+var TTS
+
 var node
+
+var should_stop_on_focus = true
+
+var logging
 
 var position_in_children = 0
 
@@ -15,7 +21,8 @@ func get_siblings():
 
 
 func click(item := node, button_index = BUTTON_LEFT):
-	print_debug("Click")
+	if logging:
+		print_debug("Click")
 	var click = InputEventMouseButton.new()
 	click.button_index = button_index
 	click.pressed = true
@@ -77,7 +84,7 @@ func _accept_dialog_focused():
 
 func _accept_dialog_about_to_show():
 	_accept_dialog_speak()
-	ScreenReader.should_stop_on_focus = false
+	should_stop_on_focus = false
 
 
 func _basebutton_button_down():
@@ -181,7 +188,8 @@ func item_list_item_focused(idx):
 func item_list_focused():
 	var count = node.get_item_count()
 	var selected = node.get_selected_items()
-	print_debug(selected)
+	if logging:
+		print_debug(selected)
 	if len(selected) == 0:
 		if node.get_item_count() == 0:
 			return TTS.speak("list, 0 items", false)
@@ -312,7 +320,8 @@ func popup_menu_focused():
 
 
 func popup_menu_item_id_focused(index):
-	print_debug("item id focus %s" % index)
+	if logging:
+		print_debug("item id focus %s" % index)
 	var tokens = PoolStringArray([])
 	var shortcut = node.get_item_shortcut(index)
 	var name
@@ -586,10 +595,11 @@ func tab_container_input(event):
 
 
 func focused():
-	print_debug("Focus: %s" % node)
-	if ScreenReader.should_stop_on_focus:
+	if logging:
+		print_debug("Focus: %s" % node)
+	if should_stop_on_focus:
 		TTS.stop()
-	ScreenReader.should_stop_on_focus = true
+	should_stop_on_focus = true
 	if not node is Label:
 		var label = _guess_label()
 		if label:
@@ -633,7 +643,8 @@ func focused():
 		tree_focused()
 	else:
 		TTS.speak(node.get_class(), true)
-		print_debug("No handler")
+		if logging:
+			print_debug("No handler")
 	if node.hint_tooltip and not spoke_hint_tooltip:
 		TTS.speak(node.hint_tooltip, false)
 	spoke_hint_tooltip = false
@@ -733,7 +744,9 @@ func editor_inspector_section_input(event):
 			TTS.speak("collapsed", true)
 
 
-func _init(node):
+func _init(node, tts, console_logging: bool):
+	TTS = tts
+	logging = console_logging
 	name = "Accessible for " + node.name
 	if node.is_in_group("accessible"):
 		return

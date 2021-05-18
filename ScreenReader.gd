@@ -11,6 +11,10 @@ signal swipe_down
 
 var Accessible = preload("Accessible.gd")
 
+var TTS
+
+var logging
+
 export var enabled = true setget _set_enabled, _get_enabled
 
 export var min_swipe_distance = 5
@@ -20,8 +24,6 @@ export var tap_execute_interval = 125
 export var explore_by_touch_interval = 200
 
 export var enable_focus_mode = false
-
-var should_stop_on_focus = true
 
 func _set_enabled(v):
 	if enabled:
@@ -40,7 +42,7 @@ func augment_node(node):
 	if not enabled:
 		return
 	if node is Control:
-		Accessible.new(node)
+		Accessible.new(node, TTS, logging)
 
 
 func augment_tree(node):
@@ -65,6 +67,11 @@ func find_focusable_control(node):
 		if result:
 			return result
 	return null
+
+
+func _init(tts, console_logging: bool):
+	TTS = tts
+	logging = console_logging
 
 
 func _enter_tree():
