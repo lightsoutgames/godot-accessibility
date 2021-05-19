@@ -11,11 +11,11 @@ signal swipe_down
 
 var Accessible = preload("Accessible.gd")
 
+var TtsClass = preload("../godot-tts/TTS.gd")
+
 var TTS
 
-var logging
-
-export var enabled = true setget _set_enabled, _get_enabled
+export var enabled = true
 
 export var min_swipe_distance = 5
 
@@ -25,24 +25,16 @@ export var explore_by_touch_interval = 200
 
 export var enable_focus_mode = false
 
-func _set_enabled(v):
-	if enabled:
-		augment_tree(get_tree().root)
-	else:
-		for accessible in get_tree().get_nodes_in_group("accessibles"):
-			accessible.queue_free()
-	enabled = v
+export var logging = true
 
-
-func _get_enabled():
-	return enabled
+var should_stop_on_focus = true
 
 
 func augment_node(node):
 	if not enabled:
 		return
 	if node is Control:
-		Accessible.new(node, TTS, logging)
+		Accessible.new(node, self, TTS)
 
 
 func augment_tree(node):
@@ -69,20 +61,27 @@ func find_focusable_control(node):
 	return null
 
 
-func _init(tts, console_logging: bool):
-	TTS = tts
-	logging = console_logging
+func _init():
+	TTS = TtsClass.new()
 
 
 func _enter_tree():
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	if enabled:
 		augment_tree(get_tree().root)
-	get_tree().connect("node_added", self, "augment_node")
-	connect("swipe_right", self, "swipe_right")
-	connect("swipe_left", self, "swipe_left")
-	connect("swipe_up", self, "swipe_up")
-	connect("swipe_down", self, "swipe_down")
+	else:
+		for accessible in get_tree().get_nodes_in_group("accessibles"):
+			accessible.queue_free()
+	_safe_connect(get_tree(), "node_added", self, "augment_node")
+	_safe_connect(self, "swipe_right", self, "swipe_right")
+	_safe_connect(self, "swipe_left", self, "swipe_left")
+	_safe_connect(self, "swipe_up", self, "swipe_up")
+	_safe_connect(self, "swipe_down", self, "swipe_down")
+
+
+func _safe_connect(to_object, signal_name, object, method, binds = [], flags = 0):
+	if not to_object.is_connected(signal_name, object, method):
+		to_object.connect(signal_name, object, method, binds, flags)
 
 
 func _press_and_release(action, fake_via_keyboard = false):
